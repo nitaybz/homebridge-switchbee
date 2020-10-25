@@ -10,18 +10,34 @@
   "platforms": [
     {
       "platform": "SwitchBee",
-      "username": "******@*******.**",
+      "ip": "10.0.0.x",
+      "username": "******@*******.***",
       "password": "*******",
-      "disableFan": false,
-      "disableDry": false,
-      "enableSyncButton": true,
-      "syncButtonInAccessory": false,
-      "enableOccupancySensor": true,
-      "enableClimateReactSwitch": true,
-      "enableHistoryStorage": true,
-      "disableHorizontalSwing": false,
-      "externalHumiditySensor": false,
-      "debug": false
+      "statePollingInterval": 5,
+      "debug": false,
+      "devices": [
+        {
+          "id": 1,
+          "accessoryType": "valve",
+          "defaultDuration": 90
+        },
+        {
+          "id": 22,
+          "accessoryType": "outlet"
+        },
+        {
+          "id": 23,
+          "accessoryType": "switch"
+        },
+        {
+          "id": 23,
+          "accessoryType": "lock"
+        },
+        {
+          "id": 4,
+          "hide": true
+        }
+      ]
     }
   ],
 

@@ -7,100 +7,115 @@
     "schema": {
         "type": "object",
         "properties": {
-            "platform": {
-                "title": "Platform",
+            "ip": {
+                "title": "Central Unit IP Address",
+                "description": "IP Address of SwitchBee Gateway",
                 "type": "string",
-                "const": "SwitchBee",
-                "readOnly": true
+                "required": true
             },
             "username": {
                 "title": "Username",
                 "description": "Your SwitchBee account username/email",
                 "type": "string",
-                "required": false
+                "required": true
             },
             "password": {
                 "title": "Password",
                 "description": "Your SwitchBee account password",
                 "type": "string",
-                "required": false
+                "required": true
             },
-            "apiKey": {
-                "title": "API-Key (NOT required - use username and password)",
-                "description": "Your SwitchBee API-key",
-                "type": "string",
-                "required": false
-            },
-            "disableFan": {
-                "title": "Disable Fan Accessory",
-                "description": "Disable FAN mode control - remove extra fan accessory",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "disableDry": {
-                "title": "Disable Dry Accessory",
-                "description": "Disable DRY mode control - remove extra dehumidifier accessory",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "enableSyncButton": {
-                "title": "Enable Sync Button",
-                "description": "Adding a switch to quickly toggle the state of the AC without sending commands to the AC",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "syncButtonInAccessory": {
-                "title": "Sync Button in AC Accessory",
-                "description": "Enabling it will remove the extra AC Sync switch if it exists and will show \"AC Sync Button\" attached as a service to the Same AC Accessory (works only when `enableSyncButton` is set to true)",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "enableOccupancySensor": {
-                "title": "Enable Occupancy Sensor",
-                "description": "Adding occupancy sensor to represent the state of someone at home/away",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "enableClimateReactSwitch": {
-                "title": "Enable Climate React Switch",
-                "description": "Adding a switch to quickly enable/disable Climate React",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "enableHistoryStorage": {
-                "title": "Enable History Storage",
-                "description": "Records all temperature & humidity measurements history to be viewable in the Eve app",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "disableHorizontalSwing": {
-                "title": "Disable Horizontal Swing (Switch)",
-                "description": "Disable horizontal swing control (via extra switch)",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "externalHumiditySensor": {
-                "title": "Enable External Humidity Sensor",
-                "description": "Creates an external sensor outside of the accessory that shows relative humidity",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
+			"statePollingInterval": {
+				"title": "Device Status Polling Interval in Seconds",
+				"description": "Time in seconds between each status polling of the SwitchBee devices (minimum 3 seconds)",
+				"default": 5,
+				"type": "integer",
+				"minimum": 3,
+				"maximum": 30
+			},
             "debug": {
                 "title": "Enable Debug Logs",
                 "description": "When checked, the plugin will produce extra logs for debugging purposes",
                 "type": "boolean",
                 "default": false,
                 "required": false
+            },
+            "devices": {
+                "type": "array",
+                "required": false,
+                "items": {
+                  "title": "Custom Devices Settings",
+                  "type": "object",
+                  "properties": {
+
+                    "id": {
+                        "title": "Device ID",
+                        "description": "Device ID is needed to set custom settings for a specific device. Device ID can be seen in the logs when HomeBridge initialize",
+                        "type": "string",
+                        "required": true
+                    },
+                    "accessoryType": {
+                        "title": "Accessory Type",
+                        "description": "Accessory Type and Icon for this specific device - affect functionality (read more in the <a target=\"_blank\" href=\"https://github.com/nitaybz/homebridge-switchbee/blob/master/README.md\">README.md</a> file)",
+                        "type": "string",
+                        "required": false,
+                        "oneOf": [
+                          { "title": "Switch", "enum": ["switch"] },
+                          { "title": "Outlet", "enum": ["outlet"] },
+                          { "title": "Lock", "enum": ["lock"] },
+                          { "title": "Water Valve", "enum": ["valve"] }
+                        ]
+                    },
+                    "defaultDuration": {
+                        "title": "Default Duration In Minutes for Timed Switch",
+                        "description": "The default duration in minutes to auto shut off the switch (sent with each \"ON\" command). can be changed in Home app with valve accessory.",
+                        "type": "integer",
+                        "required": false,
+                        "minimum": 1,
+                        "maximum": 300
+                    },
+                    "hide": {
+                        "title": "Hide Device",
+                        "description": "Remove this device from HomeKit",
+                        "type": "boolean",
+                        "required": false
+                    }
+
+                  }
+                }
             }
         }
-    }
-  }
+    },
+      "layout": [
+        {
+          "key": "ip"
+        },
+        {
+          "key": "username"
+        },
+        {
+          "key": "password"
+        },
+        {
+          "key": "statePollingInterval"
+        },
+        {
+          "key": "debug"
+        },
+        {
+          "key": "devices",
+          "type": "array",
+          "title": "Custom Devices Settings",
+          "orderable": false,
+          "buttonText": "Add Device",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "devices[].id",
+            "devices[].accessoryType",
+            "devices[].defaultDuration",
+            "devices[].hide"
+            ]
+        }
+      ]
+}

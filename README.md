@@ -42,23 +42,52 @@ please check again in a few days.
 ## Config file
 
 #### Easy config (required):
-```
+
+``` json
 "platforms": [
     {
-        "platform": "SwitchBee",
-        "username": "******@*******.***",
-        "password": "*******"
+      "platform": "SwitchBee",
+      "ip": "10.0.0.x",
+      "username": "******@*******.***",
+      "password": "*******",
     }
 ]
 ```
 
 #### Advanced config (optional):
-```
+
+``` json
 "platforms": [
     {
-        "platform": "SwitchBee",
-        "username": "******@*******.***",
-        "password": "*******"
+      "platform": "SwitchBee",
+      "ip": "10.0.0.x",
+      "username": "******@*******.***",
+      "password": "*******",
+      "statePollingInterval": 5,
+      "debug": false,
+      "devices": [
+        {
+          "id": 1,
+          "accessoryType": "valve",
+          "defaultDuration": 90
+        },
+        {
+          "id": 22,
+          "accessoryType": "outlet"
+        },
+        {
+          "id": 23,
+          "accessoryType": "switch"
+        },
+        {
+          "id": 23,
+          "accessoryType": "lock"
+        },
+        {
+          "id": 4,
+          "hide": true
+        }
+      ]
     }
 ]
 ```

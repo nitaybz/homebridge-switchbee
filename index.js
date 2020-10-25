@@ -19,7 +19,7 @@ class SwitchBeePlatform {
 		this.connectedDevices = {}
 		this.PLUGIN_NAME = PLUGIN_NAME
 		this.PLATFORM_NAME = PLATFORM_NAME
-		this.name = config.name || PLATFORM_NAME
+		this.name = PLATFORM_NAME
 		this.devicesConfig = config.devices || []
 		this.debug = config.debug || false
 
@@ -33,15 +33,16 @@ class SwitchBeePlatform {
 		this.username = config['username']
 		this.password = config['password']
 		
-		if (!this.username || !this.password) {
+		if (!this.username || !this.password || !this.ip) {
 			this.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  --  ERROR  --  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')
-			this.log('Can\'t start homebridge-sensibo-ac plugin without username and password !!\n')
+			this.log('Can\'t start homebridge-switchbee plugin without IP, username and password !!\n')
 			this.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')
 			return
 		}
 
 		this.persistPath = path.join(this.api.user.persistPath(), '/../switchbee-persist')
-		const requestedInterval = config['statePollingInterval'] || 30 // default polling time is 30 seconds
+		let requestedInterval = config['statePollingInterval']*1000 || 5000 // default polling time is 30 seconds
+		if (requestedInterval < 3000) requestedInterval = 3000 // minimum 3 seconds to not overload
 		this.refreshDelay = 2000
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //

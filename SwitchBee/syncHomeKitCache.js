@@ -30,7 +30,7 @@ module.exports = (platform) => {
 				
 
 			const accessoryType = (deviceConfig && deviceConfig.accessoryType) ? deviceConfig.accessoryType.toLowerCase() : 'switch'
-			device.defaultDuration = deviceConfig ? deviceConfig.defaultDuration : null
+			device.defaultDuration = deviceConfig && deviceConfig.defaultDuration ? deviceConfig.defaultDuration * 60 : null
 
 			switch(device.type) {
 				case 'SWITCH': 
