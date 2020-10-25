@@ -1,0 +1,48 @@
+{
+  "name": "homebridge-switchbee",
+  "description": "Homebridge plugin for SwitchBee - Smart Home",
+  "version": "0.0.1-beta.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nitaybz/homebridge-switchbee.git"
+  },
+  "license": "GNU",
+  "preferGlobal": true,
+  "keywords": [
+    "homebridge-plugin",
+    "homebridge-switchbee",
+    "switchbee"
+  ],
+  "bugs": {
+    "url": "https://github.com/nitaybz/homebridge-switchbee/issues"
+  },
+  "engines": {
+    "node": ">=10.17.0",
+    "homebridge": ">=0.4.4"
+  },
+  "dependencies": {
+    "axios": "^0.20.0",
+    "node-persist": "^3.0.5"
+  },
+  "devDependencies": {
+    "eslint": "^7.1.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "funding": [
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/nitaybz"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/nitaybz"
+    },
+    {
+      "type": "kofi",
+      "url": "https://ko-fi.com/nitaybz"
+    }
+  ]
+}

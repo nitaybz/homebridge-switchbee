@@ -1,0 +1,106 @@
+{
+    "pluginAlias": "SwitchBee",
+    "pluginType": "platform",
+    "singular": true,
+    "headerDisplay": "Homebridge plugin for SwitchBee - Smart AC Control",
+    "footerDisplay": "Created by @nitaybz",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "platform": {
+                "title": "Platform",
+                "type": "string",
+                "const": "SwitchBee",
+                "readOnly": true
+            },
+            "username": {
+                "title": "Username",
+                "description": "Your SwitchBee account username/email",
+                "type": "string",
+                "required": false
+            },
+            "password": {
+                "title": "Password",
+                "description": "Your SwitchBee account password",
+                "type": "string",
+                "required": false
+            },
+            "apiKey": {
+                "title": "API-Key (NOT required - use username and password)",
+                "description": "Your SwitchBee API-key",
+                "type": "string",
+                "required": false
+            },
+            "disableFan": {
+                "title": "Disable Fan Accessory",
+                "description": "Disable FAN mode control - remove extra fan accessory",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "disableDry": {
+                "title": "Disable Dry Accessory",
+                "description": "Disable DRY mode control - remove extra dehumidifier accessory",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "enableSyncButton": {
+                "title": "Enable Sync Button",
+                "description": "Adding a switch to quickly toggle the state of the AC without sending commands to the AC",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "syncButtonInAccessory": {
+                "title": "Sync Button in AC Accessory",
+                "description": "Enabling it will remove the extra AC Sync switch if it exists and will show \"AC Sync Button\" attached as a service to the Same AC Accessory (works only when `enableSyncButton` is set to true)",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "enableOccupancySensor": {
+                "title": "Enable Occupancy Sensor",
+                "description": "Adding occupancy sensor to represent the state of someone at home/away",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "enableClimateReactSwitch": {
+                "title": "Enable Climate React Switch",
+                "description": "Adding a switch to quickly enable/disable Climate React",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "enableHistoryStorage": {
+                "title": "Enable History Storage",
+                "description": "Records all temperature & humidity measurements history to be viewable in the Eve app",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "disableHorizontalSwing": {
+                "title": "Disable Horizontal Swing (Switch)",
+                "description": "Disable horizontal swing control (via extra switch)",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "externalHumiditySensor": {
+                "title": "Enable External Humidity Sensor",
+                "description": "Creates an external sensor outside of the accessory that shows relative humidity",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
+            "debug": {
+                "title": "Enable Debug Logs",
+                "description": "When checked, the plugin will produce extra logs for debugging purposes",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            }
+        }
+    }
+  }
