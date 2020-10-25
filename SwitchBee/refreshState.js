@@ -41,7 +41,7 @@ module.exports = (platform) => {
 				
 				Object.values(platform.connectedDevices).forEach(device => {
 					if (device.id in platform.state) {
-						platform.connectedDevices.state.update(unified.state[device.type](platform.state[device.id]))
+						device.state.update(unified.state[device.type](platform.state[device.id]))
 					}
 				})
 

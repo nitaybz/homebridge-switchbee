@@ -9,7 +9,7 @@ const Shutter = require('../homekit/Shutter')
 module.exports = (platform) => {
 	return () => {
 
-		const devicesDetected = Object.keys(platform.devices)
+		
 		Object.values(platform.devices).forEach(device => {
 
 			const deviceConfig = platform.devicesConfig.find(deviceConfig => deviceConfig.id === device.id)
@@ -81,9 +81,10 @@ module.exports = (platform) => {
 		})
 
 
+		const devicesDetected = Object.keys(platform.devices).map(id => parseInt(id))
 		// find devices to remove
 		const accessoriesToRemove = []
-		platform.cachedAccessories.forEach(accessory => {
+		platform.accessories.forEach(accessory => {
 			const id = accessory.context.deviceId
 
 			if (!(id in platform.connectedDevices)) {
@@ -116,7 +117,7 @@ module.exports = (platform) => {
 			platform.api.unregisterPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, accessoriesToRemove)
 
 			// remove from cachedAccessories
-			platform.cachedAccessories = platform.cachedAccessories.filter( cachedAccessory => !accessoriesToRemove.find(accessory => accessory.UUID === cachedAccessory.UUID) )
+			platform.accessories = platform.accessories.filter( cachedAccessory => !accessoriesToRemove.find(accessory => accessory.UUID === cachedAccessory.UUID) )
 
 		}
 	}

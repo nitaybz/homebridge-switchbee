@@ -79,9 +79,9 @@ class SwitchBeePlatform {
 				await this.storage.setItem('switchbee-configuration', this.configuration)
 			} catch(err) {
 				this.log('ERR:', err)
-				this.configuration = await this.storage.getItem('switchbee-configuration') || {zones: []}
+				this.devices = await this.storage.getItem('switchbee-configuration') || {}
 			}
-			
+
 			// get states
 			try {
 				this.state = await this.SwitchBeeApi.getState(Object.keys(this.devices))

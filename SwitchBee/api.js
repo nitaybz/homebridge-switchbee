@@ -1,4 +1,5 @@
 const axios = require('axios')
+const https = require('https')
 let log, token, username, password
 
 module.exports = async function (platform) {
@@ -7,7 +8,9 @@ module.exports = async function (platform) {
 	password = platform.password
 	
 	axios.defaults.baseURL = 'https://' + platform.ip
-	
+	axios.defaults.httpsAgent = new https.Agent({
+		rejectUnauthorized: false
+	})
 	
 	return {
 	
@@ -32,6 +35,7 @@ module.exports = async function (platform) {
 
 		getState: async (ids) => {
 			try {
+				ids = ids.map(id => parseInt(id))
 				const state = {}
 				const devices = await request('GET_MULTIPLE_STATES', ids)
 				devices.forEach(device => {
@@ -67,22 +71,25 @@ function request(command, params) {
 		}
 		
 	
-		log.easyDebug(`Creating request to SwitchBee Central Unit --->`)
+		log.easyDebug(`Creating ${command} request to SwitchBee Central Unit --->`)
 		
 		if (params)
 			log.easyDebug('params: ' +JSON.stringify(params))
 
 		axios.post('/commands', { token: requestToken, command, params })
 			.then(response => {
-				if (response.status === 'OK') {
-					const json = response.data
+				const data = response.data
+				if (data.status === 'OK') {
+					const json = data.data
 					log.easyDebug(`Successful response:`)
 					log.easyDebug(JSON.stringify(json))
 					resolve(json)
 				} else {
-					const error = `Could NOT complete the request -> ERROR: "${response.status}"`
+					const error = `Could NOT complete the request -> ERROR: "${JSON.stringify(data)}"`
 					log(error)
 					reject(error)
+					if (data.status === 'INVALID_TOKEN')
+						token = null
 				}
 			})
 			.catch(err => {
@@ -114,16 +121,17 @@ function getToken() {
 
 		axios.post('/commands', data)
 			.then(async response => {
-				if (response.status === 'OK') {
+				const data = response.data
+				if (data.status === 'OK') {
 					token = {
-						key: response.data.token,
-						expirationDate: response.data.expiration
+						key: data.data.token,
+						expirationDate: data.data.expiration
 					}
 					log.easyDebug('Token successfully acquired from Central Unit')
 					// log.easyDebug(token)
 					resolve(token.key)
 				} else {
-					const error = `Could NOT complete the token request -> ERROR: "${response.status}"`
+					const error = `Could NOT complete the token request -> ERROR: "${JSON.stringify(data)}"`
 					log(error)
 					reject(error)
 				}

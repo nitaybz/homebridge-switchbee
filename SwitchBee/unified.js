@@ -129,7 +129,7 @@ module.exports = {
 		Valve: (state) => {
 			return {
 				Active: (state && state !== 'OFF') ? 1 : 0,
-				RemainingDuration: state * 60
+				RemainingDuration: (state && state !== 'OFF') ? state * 60 : 0
 			}
 
 		},

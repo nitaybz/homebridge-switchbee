@@ -32,7 +32,7 @@ class Switch {
 		this.stateManager = require('./StateManager')(this, platform)
 
 		this.UUID = this.api.hap.uuid.generate(this.id + this.type)
-		this.accessory = platform.cachedAccessories.find(accessory => accessory.UUID === this.UUID)
+		this.accessory = platform.accessories.find(accessory => accessory.UUID === this.UUID)
 
 		if (!this.accessory) {
 			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.type} Accessory in the ${this.roomName}: "${this.name}" (id:${this.id})`)
@@ -40,7 +40,7 @@ class Switch {
 			this.accessory.context.type = this.type
 			this.accessory.context.deviceId = this.id
 
-			platform.cachedAccessories.push(this.accessory)
+			platform.accessories.push(this.accessory)
 			// register the accessory
 			this.api.registerPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
 		}

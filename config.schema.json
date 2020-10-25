@@ -51,7 +51,7 @@
                     "id": {
                         "title": "Device ID",
                         "description": "Device ID is needed to set custom settings for a specific device. Device ID can be seen in the logs when HomeBridge initialize",
-                        "type": "string",
+                        "type": "integer",
                         "required": true
                     },
                     "accessoryType": {
