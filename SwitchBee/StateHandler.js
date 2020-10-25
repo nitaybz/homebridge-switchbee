@@ -2,7 +2,7 @@ const unified = require('./unified')
 
 module.exports = (device, platform) => {
 
-	const setTimeoutDelay = 1000
+	const setTimeoutDelay = 100
 	let setTimer = null
 	let preventTurningOff = false
 	const SwitchBeeApi = platform.SwitchBeeApi
