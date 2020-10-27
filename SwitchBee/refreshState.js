@@ -10,7 +10,7 @@ module.exports = (platform) => {
 				// get configurations
 				try {
 					platform.devices = await platform.SwitchBeeApi.getDevices()
-					await platform.storage.setItem('switchbee-configuration', platform.configuration)
+					await platform.storage.setItem('switchbee-configuration', platform.devices)
 				} catch(err) {
 					platform.log('ERR:', err)
 					platform.log.easyDebug('<<<< ---- Fetching Configurations FAILED! ---- >>>>')
