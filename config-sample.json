@@ -13,7 +13,7 @@
       "ip": "10.0.0.x",
       "username": "******@*******.***",
       "password": "*******",
-      "statePollingInterval": 5,
+      "statePollingInterval": 10,
       "debug": false,
       "devices": [
         {
