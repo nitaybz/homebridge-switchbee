@@ -12,11 +12,13 @@ module.exports = (platform) => {
 					platform.devices = await platform.SwitchBeeApi.getDevices()
 					await platform.storage.setItem('switchbee-configuration', platform.devices)
 				} catch(err) {
-					platform.log('ERR:', err)
+					platform.log('ERR:', err.stack || err.message || err)
 					platform.log.easyDebug('<<<< ---- Fetching Configurations FAILED! ---- >>>>')
 					if (platform.pollingInterval) {
 						platform.log.easyDebug(`Will try again in ${platform.pollingInterval/1000} seconds...`)
+						platform.pollingTimeout = setTimeout(platform.refreshState, platform.pollingInterval)
 					}
+					return
 				}
 
 				// get states
@@ -24,7 +26,7 @@ module.exports = (platform) => {
 					platform.state = await platform.SwitchBeeApi.getState(Object.keys(platform.devices))
 					await platform.storage.setItem('switchbee-raw-state', platform.state)
 				} catch(err) {
-					platform.log('ERR:', err)
+					platform.log('ERR:', err.stack || err.message || err)
 					platform.log.easyDebug('<<<< ---- Refresh State FAILED! ---- >>>>')
 					platform.processingState = false
 					if (platform.pollingInterval) {

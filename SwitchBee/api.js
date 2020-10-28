@@ -68,6 +68,7 @@ function request(command, params) {
 		} catch (err) {
 			log('The plugin was NOT able to find stored token or acquire one from SwitchBee Central Unit !!')
 			reject(err)
+			return
 		}
 		
 	

@@ -78,8 +78,15 @@ class SwitchBeePlatform {
 				this.devices = await this.SwitchBeeApi.getDevices()
 				await this.storage.setItem('switchbee-configuration', this.devices)
 			} catch(err) {
-				this.log('ERR:', err)
-				this.devices = await this.storage.getItem('switchbee-configuration') || {}
+				this.log('ERR:', err.stack || err.message || err)
+				this.devices = await this.storage.getItem('switchbee-configuration')
+				if (this.devices) {
+					this.log.easyDebug('Got configurations from storage:')
+					this.log.easyDebug(JSON.stringify(this.devices))
+				} else {
+					this.log.easyDebug('Configurations not found in storage.... initiating with empty configurations')
+					this.devices = {}
+				}
 			}
 
 			// get states
@@ -87,8 +94,15 @@ class SwitchBeePlatform {
 				this.state = await this.SwitchBeeApi.getState(Object.keys(this.devices))
 				await this.storage.setItem('switchbee-raw-state', this.state)
 			} catch(err) {
-				this.log('ERR:', err.stack || err)
-				this.state = await this.storage.getItem('switchbee-raw-state') || {}
+				this.log('ERR:', err.stack || err.message || err)
+				this.state = await this.storage.getItem('switchbee-raw-state')
+				if (this.state) {
+					this.log.easyDebug('Got state from storage:')
+					this.log.easyDebug(JSON.stringify(this.state))
+				} else {
+					this.log.easyDebug('State not found in storage.... initiating with empty state')
+					this.state = {}
+				}
 			}
 			
 			this.syncHomeKitCache()
