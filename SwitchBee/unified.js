@@ -120,7 +120,7 @@ module.exports = {
 		
 		Shutter: (state) => {
 			return {
-				CurrentPosition: state,
+				CurrentPosition: (state && state !== 'OFF') ? state : 0,
 				PositionState: 2
 			}
 
