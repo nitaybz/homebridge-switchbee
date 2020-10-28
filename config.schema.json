@@ -28,9 +28,9 @@
 			"statePollingInterval": {
 				"title": "Device Status Polling Interval in Seconds",
 				"description": "Time in seconds between each status polling of the SwitchBee devices (minimum 3 seconds)",
-				"default": 5,
+				"default": 10,
 				"type": "integer",
-				"minimum": 3,
+				"minimum": 5,
 				"maximum": 30
 			},
             "debug": {
