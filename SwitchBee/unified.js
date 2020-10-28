@@ -120,7 +120,7 @@ module.exports = {
 		
 		Shutter: (state) => {
 			return {
-				CurrentPosition: (state && state !== 'OFF') ? state : 0,
+				CurrentPosition: (state && state !== 'OFF'  && state > 0) ? state : 0,
 				PositionState: 2
 			}
 
@@ -129,7 +129,7 @@ module.exports = {
 		Valve: (state) => {
 			return {
 				Active: (state && state !== 'OFF') ? 1 : 0,
-				RemainingDuration: (state && state !== 'OFF') ? state * 60 : 0
+				RemainingDuration: (state && state !== 'OFF'  && state > 0) ? state * 60 : 0
 			}
 
 		},
