@@ -105,11 +105,13 @@ class Shutter {
 		switch (this.shutterTilt) {
 			case 'vertical': 
 				this.tiltAngle = this.getTilt(this.state.CurrentPosition, this.ShutterService.getCharacteristic(Characteristic.TargetPosition).value, this.tiltAngle)
+				this.accessory.context.tiltAngle = this.tiltAngle
 				this.updateValue('ShutterService', 'TargetVerticalTiltAngle', this.tiltAngle)
 				this.updateValue('ShutterService', 'CurrentVerticalTiltAngle', this.tiltAngle)
 				break
 			case 'horizontal':
 				this.tiltAngle = this.getTilt(this.state.CurrentPosition, this.ShutterService.getCharacteristic(Characteristic.TargetPosition).value, this.tiltAngle)
+				this.accessory.context.tiltAngle = this.tiltAngle
 				this.updateValue('ShutterService', 'TargetHorizontalTiltAngle', this.tiltAngle)
 				this.updateValue('ShutterService', 'CurrentHorizontalTiltAngle', this.tiltAngle)
 				break
@@ -134,7 +136,7 @@ class Shutter {
 		// if opening
 		if (newValue > oldValue + 1)
 			return 90
-			
+
 		// if closing
 		if (newValue < oldValue - 1)
 			return -90
