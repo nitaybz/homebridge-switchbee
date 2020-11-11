@@ -96,6 +96,12 @@ module.exports = (device, platform) => {
 				callback(null, positionState)
 			},
 
+			TargetTiltAngle: (callback) => {
+				const tiltAngle = device.tiltAngle
+				log.easyDebug(device.name, ' - Tilt Angle is:', tiltAngle)
+				callback(null, tiltAngle)
+			},
+
 			ACActive: (callback) => {
 				const active = device.state.Active
 				const mode = device.state.mode
@@ -228,8 +234,27 @@ module.exports = (device, platform) => {
 			},
 
 			TargetPosition: (position, callback) => {
+				device.tiltAngle = device.getTilt(position, this.state.CurrentPosition, device.tiltAngle)
+
 				device.state.CurrentPosition = position
-				log.easyDebug(device.name + ' -> Setting Position to', position + '%')
+				log.easyDebug(device.name + ' -> Setting Position to' + position + '%')
+				callback()
+			},
+
+			TargetTiltAngle: (angle, callback) => {
+				const tiltAngle = device.tiltAngle
+				log.easyDebug(device.name + ' -> Setting Tilt to ' + angle + '°')
+				if (angle > tiltAngle) {
+					device.tiltAngle = 0
+					const newPosition = this.state.CurrentPosition + 1
+					device.state.CurrentPosition = newPosition
+					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
+				} else if (angle < tiltAngle) {
+					device.tiltAngle = 0
+					const newPosition = this.state.CurrentPosition - 1
+					device.state.CurrentPosition = newPosition
+					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
+				}
 				callback()
 			},
 

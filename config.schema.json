@@ -1,121 +1,160 @@
 {
-    "pluginAlias": "SwitchBee",
-    "pluginType": "platform",
-    "singular": true,
-    "headerDisplay": "Homebridge plugin for SwitchBee - Smart AC Control",
-    "footerDisplay": "Created by @nitaybz",
-    "schema": {
-        "type": "object",
-        "properties": {
-            "ip": {
-                "title": "Central Unit IP Address",
-                "description": "IP Address of SwitchBee Gateway",
-                "type": "string",
-                "required": true
-            },
-            "username": {
-                "title": "Username",
-                "description": "Your SwitchBee account username/email",
-                "type": "string",
-                "required": true
-            },
-            "password": {
-                "title": "Password",
-                "description": "Your SwitchBee account password",
-                "type": "string",
-                "required": true
-            },
-			"statePollingInterval": {
-				"title": "Device Status Polling Interval in Seconds",
-				"description": "Time in seconds between each status polling of the SwitchBee devices (minimum 3 seconds)",
-				"default": 10,
-				"type": "integer",
-				"minimum": 5,
-				"maximum": 30
-			},
-            "debug": {
-                "title": "Enable Debug Logs",
-                "description": "When checked, the plugin will produce extra logs for debugging purposes",
-                "type": "boolean",
-                "default": false,
-                "required": false
-            },
-            "devices": {
-                "type": "array",
-                "required": false,
-                "items": {
-                  "title": "Custom Devices Settings",
-                  "type": "object",
-                  "properties": {
-
-                    "id": {
-                        "title": "Device ID",
-                        "description": "Device ID is needed to set custom settings for a specific device. Device ID can be seen in the logs when HomeBridge initialize",
-                        "type": "integer",
-                        "required": true
-                    },
-                    "accessoryType": {
-                        "title": "Accessory Type",
-                        "description": "Accessory Type and Icon for this specific device - affect functionality (read more in the <a target=\"_blank\" href=\"https://github.com/nitaybz/homebridge-switchbee/blob/master/README.md\">README.md</a> file)",
-                        "type": "string",
-                        "required": false,
-                        "oneOf": [
-                          { "title": "Switch", "enum": ["switch"] },
-                          { "title": "Outlet", "enum": ["outlet"] },
-                          { "title": "Lock", "enum": ["lock"] },
-                          { "title": "Water Valve", "enum": ["valve"] }
-                        ]
-                    },
-                    "defaultDuration": {
-                        "title": "Default Duration In Minutes for Timed Switch",
-                        "description": "The default duration in minutes to auto shut off the switch (sent with each \"ON\" command). can be changed in Home app with valve accessory.",
-                        "type": "integer",
-                        "required": false,
-                        "minimum": 1,
-                        "maximum": 300
-                    },
-                    "hide": {
-                        "title": "Hide Device",
-                        "description": "Remove this device from HomeKit",
-                        "type": "boolean",
-                        "required": false
-                    }
-
-                  }
-                }
-            }
-        }
-    },
-      "layout": [
-        {
-          "key": "ip"
-        },
-        {
-          "key": "username"
-        },
-        {
-          "key": "password"
-        },
-        {
-          "key": "statePollingInterval"
-        },
-        {
-          "key": "debug"
-        },
-        {
-          "key": "devices",
-          "type": "array",
+  "pluginAlias": "SwitchBee",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Homebridge plugin for SwitchBee - Smart AC Control",
+  "footerDisplay": "Created by @nitaybz",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "ip": {
+        "title": "Central Unit IP Address",
+        "description": "IP Address of SwitchBee Gateway",
+        "type": "string",
+        "required": true
+      },
+      "username": {
+        "title": "Username",
+        "description": "Your SwitchBee account username/email",
+        "type": "string",
+        "required": true
+      },
+      "password": {
+        "title": "Password",
+        "description": "Your SwitchBee account password",
+        "type": "string",
+        "required": true
+      },
+      "statePollingInterval": {
+        "title": "Device Status Polling Interval in Seconds",
+        "description": "Time in seconds between each status polling of the SwitchBee devices (minimum 3 seconds)",
+        "default": 10,
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 30
+      },
+      "debug": {
+        "title": "Enable Debug Logs",
+        "description": "When checked, the plugin will produce extra logs for debugging purposes",
+        "type": "boolean",
+        "default": false,
+        "required": false
+      },
+      "devices": {
+        "type": "array",
+        "required": false,
+        "items": {
           "title": "Custom Devices Settings",
-          "orderable": false,
-          "buttonText": "Add Device",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            "devices[].id",
-            "devices[].accessoryType",
-            "devices[].defaultDuration",
-            "devices[].hide"
-            ]
+          "type": "object",
+          "properties": {
+            "id": {
+              "title": "Device ID",
+              "description": "Device ID is needed to set custom settings for a specific device. Device ID can be seen in the logs when HomeBridge initialize",
+              "type": "integer",
+              "required": true
+            },
+            "accessoryType": {
+              "title": "Accessory Type",
+              "description": "Accessory Type and Icon for this specific device - affect functionality (read more in the <a target=\"_blank\" href=\"https://github.com/nitaybz/homebridge-switchbee/blob/master/README.md\">README.md</a> file)",
+              "type": "string",
+              "required": false,
+              "oneOf": [
+                {
+                  "title": "Switch",
+                  "enum": [
+                    "switch"
+                  ]
+                },
+                {
+                  "title": "Outlet",
+                  "enum": [
+                    "outlet"
+                  ]
+                },
+                {
+                  "title": "Lock",
+                  "enum": [
+                    "lock"
+                  ]
+                },
+                {
+                  "title": "Water Valve",
+                  "enum": [
+                    "valve"
+                  ]
+                }
+              ]
+            },
+            "defaultDuration": {
+              "title": "Default Duration In Minutes for Timed Switch",
+              "description": "The default duration in minutes to auto shut off the switch (sent with each \"ON\" command). can be changed in Home app with valve accessory.",
+              "type": "integer",
+              "required": false,
+              "minimum": 1,
+              "maximum": 300
+            },
+            "shutterTilt": {
+              "title": "Shutter Tilt",
+              "description": "Horizontal or Vertical tilt angle",
+              "type": "string",
+              "required": false,
+              "oneOf": [
+                {
+                  "title": "Vertical",
+                  "enum": [
+                    "vertical"
+                  ]
+                },
+                {
+                  "title": "Horizontal",
+                  "enum": [
+                    "horizontal"
+                  ]
+                }
+              ]
+            },
+            "hide": {
+              "title": "Hide Device",
+              "description": "Remove this device from HomeKit",
+              "type": "boolean",
+              "required": false
+            }
+          }
         }
+      }
+    }
+  },
+  "layout": [
+    {
+      "key": "ip"
+    },
+    {
+      "key": "username"
+    },
+    {
+      "key": "password"
+    },
+    {
+      "key": "statePollingInterval"
+    },
+    {
+      "key": "debug"
+    },
+    {
+      "key": "devices",
+      "type": "array",
+      "title": "Custom Devices Settings",
+      "orderable": false,
+      "buttonText": "Add Device",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "devices[].id",
+        "devices[].accessoryType",
+        "devices[].defaultDuration",
+        "devices[].shutterTilt",
+        "devices[].hide"
       ]
+    }
+  ]
 }

@@ -22,6 +22,7 @@ class Shutter {
 		this.type = 'Shutter'
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
+		this.shutterTilt = device.shutterTilt
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 		
@@ -43,6 +44,8 @@ class Shutter {
 			// register the accessory
 			this.api.registerPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
 		}
+		if (this.shutterTilt)
+			this.tiltAngle = 'tiltAngle' in this.accessory.context ? this.accessory.context.tiltAngle : 90
 
 		this.accessory.context.roomName = this.roomName
 
@@ -74,13 +77,48 @@ class Shutter {
 
 		this.ShutterService.getCharacteristic(Characteristic.PositionState)
 			.on('get', this.stateManager.get.PositionState)
+
+		switch (this.shutterTilt) {
+			case 'vertical': 
+				this.ShutterService.getCharacteristic(Characteristic.TargetVerticalTiltAngle)
+					.on('get', this.stateManager.get.TargetTiltAngle)
+					.on('set', this.stateManager.set.TargetTiltAngle)
+
+				this.ShutterService.getCharacteristic(Characteristic.CurrentVerticalTiltAngle)
+					.on('get', this.stateManager.get.TargetTiltAngle)
+				break
+			case 'horizontal':
+				this.ShutterService.getCharacteristic(Characteristic.TargetHorizontalTiltAngle)
+					.on('get', this.stateManager.get.TargetTiltAngle)
+					.on('set', this.stateManager.set.TargetTiltAngle)
+
+				this.ShutterService.getCharacteristic(Characteristic.CurrentHorizontalTiltAngle)
+					.on('get', this.stateManager.get.TargetTiltAngle)
+				break
+		}
 	}
 
 
 	updateHomeKit() {
+			
+		// set Tilt Angle
+		switch (this.shutterTilt) {
+			case 'vertical': 
+				this.tiltAngle = this.getTilt(this.state.CurrentPosition, this.ShutterService.getCharacteristic(Characteristic.TargetPosition).value, this.tiltAngle)
+				this.updateValue('ShutterService', 'TargetVerticalTiltAngle', this.tiltAngle)
+				this.updateValue('ShutterService', 'CurrentVerticalTiltAngle', this.tiltAngle)
+				break
+			case 'horizontal':
+				this.tiltAngle = this.getTilt(this.state.CurrentPosition, this.ShutterService.getCharacteristic(Characteristic.TargetPosition).value, this.tiltAngle)
+				this.updateValue('ShutterService', 'TargetHorizontalTiltAngle', this.tiltAngle)
+				this.updateValue('ShutterService', 'CurrentHorizontalTiltAngle', this.tiltAngle)
+				break
+		}
+
 		this.updateValue('ShutterService', 'CurrentPosition', this.state.CurrentPosition)
 		this.updateValue('ShutterService', 'TargetPosition', this.state.CurrentPosition)
 		this.updateValue('ShutterService', 'PositionState', this.state.PositionState)
+
 		// cache last state to storage
 		this.storage.setItem('switchbee-state', this.cachedState)
 	}
@@ -90,6 +128,19 @@ class Shutter {
 			this[serviceName].getCharacteristic(Characteristic[characteristicName]).updateValue(newValue)
 			this.log.easyDebug(`${this.roomName} ${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
 		}
+	}
+
+	getTilt(newValue, oldValue, tilt) {
+		// if opening
+		if (newValue > oldValue + 1)
+			return 90
+			
+		// if closing
+		if (newValue < oldValue - 1)
+			return -90
+		
+		// if no change return current tilt
+		return tilt
 	}
 }
 
