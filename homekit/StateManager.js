@@ -228,13 +228,13 @@ module.exports = (device, platform) => {
 				const minutes = Math.floor(seconds / 60) % 60
 				const formattedTime = hours + ':' + ('0' + minutes).slice(-2)
 				log.easyDebug(device.name + ' -> Setting Duration to', formattedTime)
-				this.duration = seconds
-				this.accessory.context.duration = seconds	
+				device.duration = seconds
+				device.accessory.context.duration = seconds	
 				callback()
 			},
 
 			TargetPosition: (position, callback) => {
-				device.tiltAngle = device.getTilt(position, this.state.CurrentPosition, device.tiltAngle)
+				device.tiltAngle = device.getTilt(position, device.state.CurrentPosition, device.tiltAngle)
 
 				device.state.CurrentPosition = position
 				log.easyDebug(device.name + ' -> Setting Position to' + position + '%')
@@ -246,12 +246,12 @@ module.exports = (device, platform) => {
 				log.easyDebug(device.name + ' -> Setting Tilt to ' + angle + '°')
 				if (angle > tiltAngle) {
 					device.tiltAngle = 0
-					const newPosition = this.state.CurrentPosition + 1
+					const newPosition = device.state.CurrentPosition + 1
 					device.state.CurrentPosition = newPosition
 					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
 				} else if (angle < tiltAngle) {
 					device.tiltAngle = 0
-					const newPosition = this.state.CurrentPosition - 1
+					const newPosition = device.state.CurrentPosition - 1
 					device.state.CurrentPosition = newPosition
 					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
 				}
