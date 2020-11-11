@@ -153,7 +153,7 @@ module.exports = {
 			case 'TIMED_SWITCH':
 				switch (device.type) {
 					case 'Lock':
-						return (state.LockState ? 'ON' : 'OFF')
+						return (state.LockState ? 'OFF' : 'ON')
 					default:
 						return (state.On ? 'ON' : 'OFF')
 				}
@@ -161,7 +161,7 @@ module.exports = {
 			case 'TIMED_POWER':
 				switch (device.type) {
 					case 'Lock':
-						return (state.LockState ? device.duration/60 : 0)
+						return (!state.LockState ? device.duration/60 : 0)
 					case 'Valve':
 						return (state.Active ? device.duration/60 : 0)
 					default:
