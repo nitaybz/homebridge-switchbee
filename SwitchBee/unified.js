@@ -114,7 +114,7 @@ module.exports = {
 		
 		Lock: (state) => {
 			return {
-				LockState: (state && state !== 'OFF') ? 1 : 0
+				LockState: (state && state !== 'OFF') ? 0 : 1
 			}
 		},
 		
