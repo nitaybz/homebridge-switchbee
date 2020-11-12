@@ -245,12 +245,12 @@ module.exports = (device, platform) => {
 				const tiltAngle = device.tiltAngle
 				log.easyDebug(device.name + ' -> Setting Tilt to ' + angle + '°')
 				if (angle > tiltAngle) {
-					device.tiltAngle = 0
+					device.tiltAngle = device.tiltAngle !== 0 ? 0 : 90
 					const newPosition = device.state.CurrentPosition + 1
 					device.state.CurrentPosition = newPosition
 					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
 				} else if (angle < tiltAngle) {
-					device.tiltAngle = 0
+					device.tiltAngle = device.tiltAngle !== 0 ? 0 : -90
 					const newPosition = device.state.CurrentPosition - 1
 					device.state.CurrentPosition = newPosition
 					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
