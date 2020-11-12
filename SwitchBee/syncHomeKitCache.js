@@ -31,7 +31,6 @@ module.exports = (platform) => {
 
 			const accessoryType = (deviceConfig && deviceConfig.accessoryType) ? deviceConfig.accessoryType.toLowerCase() : 'switch'
 			device.defaultDuration = deviceConfig && deviceConfig.defaultDuration ? deviceConfig.defaultDuration * 60 : null
-			device.shutterTilt = deviceConfig && deviceConfig.shutterTilt
 
 			switch(device.type) {
 				case 'SWITCH': 
@@ -71,7 +70,7 @@ module.exports = (platform) => {
 					break
 
 				case 'SHUTTER':
-					platform.connectedDevices[device.id] = new Shutter(device, platform)
+					platform.connectedDevices[device.id] = new Shutter(device, platform, deviceConfig)
 					break
 
 				// case 'THERMOSTAT':

@@ -57,7 +57,6 @@
               "title": "Accessory Type",
               "description": "Accessory Type and Icon for this specific device - affect functionality (read more in the <a target=\"_blank\" href=\"https://github.com/nitaybz/homebridge-switchbee/blob/master/README.md\">README.md</a> file)",
               "type": "string",
-              "required": false,
               "oneOf": [
                 {
                   "title": "Switch",
@@ -81,6 +80,12 @@
                   "title": "Water Valve",
                   "enum": [
                     "valve"
+                  ]
+                },
+                {
+                  "title": "Shutter / Blinds",
+                  "enum": [
+                    "shutter"
                   ]
                 }
               ]
@@ -112,6 +117,14 @@
                   ]
                 }
               ]
+            },
+            "fullMovementTimeInSec": {
+              "title": "Full Open/Close Movement Time in seconds",
+              "description": "Time in seconds that it takes for your shutter to open from 0 to 100",
+              "type": "integer",
+              "required": false,
+              "minimum": 1,
+              "maximum": 180
             },
             "hide": {
               "title": "Hide Device",
@@ -151,8 +164,24 @@
       "items": [
         "devices[].id",
         "devices[].accessoryType",
-        "devices[].defaultDuration",
-        "devices[].shutterTilt",
+        {
+          "key": "devices[].defaultDuration",
+          "condition": {
+            "functionBody": "try { return (!model.devices[arrayIndices].accessoryType || model.devices[arrayIndices].accessoryType === 'switch' || model.devices[arrayIndices].accessoryType === 'lock' || model.devices[arrayIndices].accessoryType === 'outlet' || model.devices[arrayIndices].accessoryType === 'valve') } catch(e){ return false }"
+          }
+        },
+        {
+          "key": "devices[].shutterTilt",
+          "condition": {
+            "functionBody": "try { return (model.devices[arrayIndices].accessoryType === 'shutter') } catch(e){ return false }"
+          }
+        },
+        {
+          "key": "devices[].fullMovementTimeInSec",
+          "condition": {
+            "functionBody": "try { return (model.devices[arrayIndices].accessoryType === 'shutter') } catch(e){ return false }"
+          }
+        },
         "devices[].hide"
       ]
     }

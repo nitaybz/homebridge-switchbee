@@ -85,13 +85,13 @@ module.exports = (device, platform) => {
 			},
 
 			TargetPosition: (callback) => {
-				const position = device.state.CurrentPosition
-				// log.easyDebug(device.name, ' - Current Position is:', position)
+				const position = device.state.TargetPosition
+				log.easyDebug(device.name, ' - Target Position is:', position)
 				callback(null, position)
 			},
 
 			PositionState: (callback) => {
-				const positionState = device.state.PositionState
+				const positionState = device.positionState
 				log.easyDebug(device.name, ' - Position State is:', positionState)
 				callback(null, positionState)
 			},
@@ -197,7 +197,7 @@ module.exports = (device, platform) => {
 
 			On: (state, callback) => {
 				device.state.On = state
-				log.easyDebug(device.name + ' -> Setting On state to', state)
+				log(device.name + ' -> Setting On state to', state)
 				callback()
 			},
 
@@ -207,19 +207,19 @@ module.exports = (device, platform) => {
 					device.state.Active = 1
 				} else
 					device.state.Active = 0
-				log.easyDebug(device.name + ' -> Setting Brightness to', brightness + '%')
+				log(device.name + ' -> Setting Brightness to', brightness + '%')
 				callback()
 			},
 
 			LockTargetState: (state, callback) => {
 				device.state.LockState = state
-				log.easyDebug(device.name + ' -> Setting Lock State to', state ? 'SECURED' : 'UNSECURED')
+				log(device.name + ' -> Setting Lock State to', state ? 'SECURED' : 'UNSECURED')
 				callback()
 			},
 
 			Active: (state, callback) => {
 				device.state.Active = state
-				log.easyDebug(device.name + ' -> Setting Active state to', state)
+				log(device.name + ' -> Setting Active state to', state)
 				callback()
 			},
 
@@ -227,33 +227,40 @@ module.exports = (device, platform) => {
 				const hours = Math.floor(seconds / 60 / 60)
 				const minutes = Math.floor(seconds / 60) % 60
 				const formattedTime = hours + ':' + ('0' + minutes).slice(-2)
-				log.easyDebug(device.name + ' -> Setting Duration to', formattedTime)
+				log(device.name + ' -> Setting Duration to', formattedTime)
 				device.duration = seconds
 				device.accessory.context.duration = seconds	
 				callback()
 			},
 
 			TargetPosition: (position, callback) => {
-				device.tiltAngle = device.getTilt(position, device.state.CurrentPosition, device.tiltAngle)
+				const currentPosition = device.ShutterService.getCharacteristic(Characteristic.CurrentPosition).value
+				device.tiltAngle = device.getTilt(position, currentPosition, device.tiltAngle)
+				if (device.fullMovementTimeInSec)
+					device.setPositionState(position, currentPosition)
 
-				device.state.CurrentPosition = position
-				log.easyDebug(device.name + ' -> Setting Position to' + position + '%')
+				device.state.TargetPosition = position
+				if (device.positionState === 2)
+					log(device.name + ' -> Setting Position to' + position + '%')
+				else
+					log(device.name + ' -> Shutters are busy - Stopping them!')
+
 				callback()
 			},
 
 			TargetTiltAngle: (angle, callback) => {
 				const tiltAngle = device.tiltAngle
-				log.easyDebug(device.name + ' -> Setting Tilt to ' + angle + '°')
+				log(device.name + ' -> Setting Tilt to ' + angle + '°')
 				if (angle > tiltAngle) {
 					device.tiltAngle = device.tiltAngle !== 0 ? 0 : 90
 					const newPosition = device.state.CurrentPosition + 1
 					device.state.CurrentPosition = newPosition
-					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
+					log(device.name + ' -> Setting Position to' + newPosition + '%')
 				} else if (angle < tiltAngle) {
 					device.tiltAngle = device.tiltAngle !== 0 ? 0 : -90
 					const newPosition = device.state.CurrentPosition - 1
 					device.state.CurrentPosition = newPosition
-					log.easyDebug(device.name + ' -> Setting Position to' + newPosition + '%')
+					log(device.name + ' -> Setting Position to' + newPosition + '%')
 				}
 				callback()
 			},
@@ -327,7 +334,7 @@ module.exports = (device, platform) => {
 					if (device.state.targetTemperature !== temp) {
 						setTimeout(() => {
 							device.state.targetTemperature = temp
-							log.easyDebug(device.name + ' -> Setting Mode to: AUTO')
+							log(device.name + ' -> Setting Mode to: AUTO')
 							device.state.mode = 'AUTO'
 						},100)
 					}
@@ -337,12 +344,12 @@ module.exports = (device, platform) => {
 			ACSwing: (state, callback) => {
 				
 				state = state === Characteristic.SwingMode.SWING_ENABLED ? 'SWING_ENABLED' : 'SWING_DISABLED'
-				log.easyDebug(device.name + ' -> Setting AC Swing:', state)
+				log(device.name + ' -> Setting AC Swing:', state)
 				device.state.swing = state
 
 				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
 				const mode = characteristicToMode(lastMode)
-				log.easyDebug(device.name + ' -> Setting Mode to', mode)
+				log(device.name + ' -> Setting Mode to', mode)
 				device.state.Active = 1
 				device.state.mode = mode
 
@@ -350,25 +357,17 @@ module.exports = (device, platform) => {
 			},
 		
 			ACRotationSpeed: (speed, callback) => {
-				log.easyDebug(device.name + ' -> Setting AC Rotation Speed:', speed + '%')
+				log(device.name + ' -> Setting AC Rotation Speed:', speed + '%')
 				device.state.fanSpeed = speed
 
 				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
 				const mode = characteristicToMode(lastMode)
-				log.easyDebug(device.name + ' -> Setting Mode to', mode)
+				log(device.name + ' -> Setting Mode to', mode)
 				device.state.Active = 1
 				device.state.mode = mode
 
 				callback()
-			},
-
-			// CLIMATE REACT
-
-			ClimateReact: (state, callback) => {
-				log.easyDebug(device.name + ' -> Setting Climate React Switch to', state)
-				device.state.smartMode = state
-				callback()
-			} 
+			}
 		}
 
 	}

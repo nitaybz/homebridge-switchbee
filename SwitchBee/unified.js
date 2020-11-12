@@ -118,10 +118,11 @@ module.exports = {
 			}
 		},
 		
-		Shutter: (state) => {
+		Shutter: (state, device) => {
 			return {
 				CurrentPosition: (state && state !== 'OFF'  && state > 0) ? state : 0,
-				PositionState: 2
+				TargetPosition: (state && state !== 'OFF'  && state > 0) ? state : 0,
+				PositionState: device.positionState
 			}
 
 		},
@@ -172,7 +173,7 @@ module.exports = {
 				return (state.Active ? state.Brightness : 0)
 
 			case 'SHUTTER':
-				return state.CurrentPosition
+				return state.TargetPosition
 
 			case 'THERMOSTAT':
 				return {

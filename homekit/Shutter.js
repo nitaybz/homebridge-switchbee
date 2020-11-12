@@ -2,7 +2,7 @@ const unified = require('../SwitchBee/unified')
 let Characteristic, Service
 
 class Shutter {
-	constructor(device, platform) {
+	constructor(device, platform, config) {
 
 		Service = platform.api.hap.Service
 		Characteristic = platform.api.hap.Characteristic
@@ -22,8 +22,11 @@ class Shutter {
 		this.type = 'Shutter'
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
-		this.shutterTilt = device.shutterTilt
+		this.shutterTilt = config && config.shutterTilt ? config.shutterTilt : null
+		this.fullMovementTimeInSec = config && config.fullMovementTimeInSec ? config.fullMovementTimeInSec : null
 		this.setDelay = 600
+		this.positionState = 2
+		this.movingTimeout = null
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 		
@@ -117,10 +120,11 @@ class Shutter {
 				this.updateValue('ShutterService', 'CurrentHorizontalTiltAngle', this.tiltAngle)
 				break
 		}
+		if (this.positionState === 2)
+			this.updateValue('ShutterService', 'CurrentPosition', this.state.CurrentPosition)
 
-		this.updateValue('ShutterService', 'CurrentPosition', this.state.CurrentPosition)
-		this.updateValue('ShutterService', 'TargetPosition', this.state.CurrentPosition)
-		this.updateValue('ShutterService', 'PositionState', this.state.PositionState)
+		this.updateValue('ShutterService', 'TargetPosition', this.state.TargetPosition)
+		this.updateValue('ShutterService', 'PositionState', this.positionState)
 
 		// cache last state to storage
 		this.storage.setItem('switchbee-state', this.cachedState)
@@ -134,16 +138,43 @@ class Shutter {
 	}
 
 	getTilt(newValue, oldValue, tilt) {
-		// if opening
+		// if opened
 		if (newValue > oldValue + 1)
 			return 90
 
-		// if closing
+		// if closed
 		if (newValue < oldValue - 1)
 			return -90
 		
 		// if no change return current tilt
 		return tilt
+	}
+
+	setPositionState(targetPosition, currentPosition) {
+		clearTimeout(this.movingTimeout)
+		if (this.positionState !== 2) {
+			this.log.easyDebug(this.name + ' -> Setting Position State to STOPPED')
+			this.positionState = 2
+			this.updateValue('ShutterService', 'PositionState', this.positionState)
+			return
+		}
+
+		const diff = Math.abs(targetPosition - currentPosition)
+		const calcTimeInSeconds = diff * this.fullMovementTimeInSec / 100
+
+		const isOpening = targetPosition > currentPosition ? 1 : 0
+		this.log.easyDebug(this.name + ' -> Setting Position State to ' + (isOpening ? 'OPENING' : 'CLOSING'))
+		this.positionState = isOpening
+		this.updateValue('ShutterService', 'PositionState', this.positionState)
+
+		this.movingTimeout = setTimeout(() => {
+			
+			this.updateValue('ShutterService', 'CurrentPosition', targetPosition)
+			this.log.easyDebug(this.name + ' -> Setting Position State to STOPPED')
+			this.positionState = 2
+			this.updateValue('ShutterService', 'PositionState', this.positionState)
+
+		}, calcTimeInSeconds * 1000)
 	}
 }
 
