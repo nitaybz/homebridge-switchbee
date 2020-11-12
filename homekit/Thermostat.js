@@ -24,6 +24,7 @@ class Thermostat {
 		this.modes = device.modes
 		this.usesFahrenheit = device.temperatureUnits !== 'CELSIUS'
 		this.installation = deviceInfo.installation
+		this.setDelay = 600
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 		

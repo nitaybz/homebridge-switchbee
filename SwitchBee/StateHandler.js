@@ -71,7 +71,7 @@ module.exports = (device, platform) => {
 					platform.setProcessing = false
 				}, 500)
 
-			}, setTimeoutDelay)
+			}, device.setDelay || setTimeoutDelay)
 
 			return true
 		}

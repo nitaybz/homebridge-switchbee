@@ -23,6 +23,7 @@ class Shutter {
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
 		this.shutterTilt = device.shutterTilt
+		this.setDelay = 600
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 		
