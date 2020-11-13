@@ -28,7 +28,7 @@ class Shutter {
 		this.positionState = 2
 		this.movingTimeout = null
 
-		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
+		this.state = this.cachedState[this.id] = unified.state[this.type](device.state, device)
 		
 		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
 		this.state = new Proxy(this.state, StateHandler)
