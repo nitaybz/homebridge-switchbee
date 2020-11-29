@@ -202,7 +202,10 @@ module.exports = (device, platform) => {
 			},
 
 			Brightness: (brightness, callback) => {
-				device.state.Brightness = brightness
+				if (brightness > 0) {
+					device.state.Brightness = brightness
+				} else
+					device.state.On = false
 				log(device.name + ' -> Setting Brightness to', brightness + '%')
 				callback()
 			},

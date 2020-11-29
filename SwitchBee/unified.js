@@ -101,8 +101,8 @@ module.exports = {
 
 		Dimmer: (state) => {
 			return {
-				On: (state && state !== 'OFF'),
-				Brightness: state
+				On: (state && state !== 'OFF' && state !== 0),
+				Brightness: (state && state !== 'OFF' && state !== 0) ? state : 0
 			}
 		},
 
