@@ -170,7 +170,7 @@ module.exports = {
 				}
 
 			case 'DIMMER':
-				return (state.Active ? state.Brightness : 0)
+				return (state.On ? state.Brightness : 0)
 
 			case 'SHUTTER':
 				return state.TargetPosition
