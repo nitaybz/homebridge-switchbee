@@ -43,7 +43,7 @@ class SwitchBeePlatform {
 		this.persistPath = path.join(this.api.user.persistPath(), '/../switchbee-persist')
 		let requestedInterval = config['statePollingInterval']*1000 || 10000 // default polling time is 30 seconds
 		if (requestedInterval < 5000) requestedInterval = 5000 // minimum 3 seconds to not overload
-		this.refreshDelay = 2000
+		this.refreshDelay = 1000
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
