@@ -56,9 +56,7 @@ module.exports = (platform) => {
 					platform.pollingTimeout = setTimeout(platform.refreshState, platform.pollingInterval)
 
 				// block new requests for extra X seconds
-				setTimeout(() => {
-					platform.processingState = false
-				}, platform.refreshDelay)
+				platform.processingState = false
 
 			}, platform.refreshDelay)
 		}
