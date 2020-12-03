@@ -89,7 +89,7 @@ function request(command, params) {
 					const error = `Could NOT complete the request -> ERROR: "${JSON.stringify(data)}"`
 					log(error)
 					reject(error)
-					if (data.status.includes('TOKEN'))
+					if (data.status && typeof data.status === 'string' && data.status.includes('TOKEN'))
 						token = null
 				}
 			})
