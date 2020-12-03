@@ -14,6 +14,7 @@ module.exports = (platform) => {
 				} catch(err) {
 					platform.log('ERR:', err.stack || err.message || err)
 					platform.log.easyDebug('<<<< ---- Fetching Configurations FAILED! ---- >>>>')
+					platform.processingState = false
 					if (platform.pollingInterval) {
 						platform.log.easyDebug(`Will try again in ${platform.pollingInterval/1000} seconds...`)
 						platform.pollingTimeout = setTimeout(platform.refreshState, platform.pollingInterval)

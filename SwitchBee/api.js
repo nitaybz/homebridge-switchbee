@@ -89,7 +89,7 @@ function request(command, params) {
 					const error = `Could NOT complete the request -> ERROR: "${JSON.stringify(data)}"`
 					log(error)
 					reject(error)
-					if (data.status === 'INVALID_TOKEN')
+					if (data.status.includes('TOKEN'))
 						token = null
 				}
 			})
@@ -106,7 +106,7 @@ function getToken() {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve, reject) => {
 		
-		if (token && new Date().getTime() < token.expirationDate) {
+		if (token && new Date().getTime() < (token.expirationDate - 2000)) {
 			// log.easyDebug('Found valid token in cache')
 			resolve(token.key)
 			return
