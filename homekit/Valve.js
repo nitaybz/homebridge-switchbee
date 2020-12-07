@@ -46,6 +46,9 @@ class Valve {
 			this.api.registerPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
 		}
 
+		if (this.defaultDuration)
+			this.accessory.context.duration = this.duration = this.defaultDuration
+			
 		this.accessory.context.roomName = this.roomName
 
 		if (this.accessory.context.duration)
