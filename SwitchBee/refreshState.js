@@ -39,6 +39,7 @@ module.exports = (platform) => {
 
 				if (platform.setProcessing) {
 					platform.processingState = false
+					platform.pollingTimeout = setTimeout(platform.refreshState, platform.pollingInterval)
 					return
 				}
 				

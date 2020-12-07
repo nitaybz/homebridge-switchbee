@@ -30,8 +30,8 @@ module.exports = (device, platform) => {
 	
 		set: (state, prop, value) => {
 			
-			if (prop in state && state[prop] === value)
-				return
+			// if (prop in state && state[prop] === value)
+			// 	return
 
 			state[prop] = value
 			
@@ -67,8 +67,8 @@ module.exports = (device, platform) => {
 					return
 				}
 				setTimeout(() => {
-					device.updateHomeKit()
 					platform.setProcessing = false
+					device.updateHomeKit()
 				}, 500)
 
 			}, device.setDelay || setTimeoutDelay)
