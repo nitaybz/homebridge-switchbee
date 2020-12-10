@@ -97,8 +97,8 @@ class Outlet {
 
 
 	updateHomeKit() {
-		this.updateValue('OutletService', 'OutletCurrentState', this.state.On)
-		this.updateValue('OutletService', 'OutletTargetState', this.state.On)
+		this.updateValue('OutletService', 'On', this.state.On)
+		this.updateValue('OutletService', 'OutletInUse', this.state.On)
 		// cache last state to storage
 		this.storage.setItem('switchbee-state', this.cachedState)
 	}
