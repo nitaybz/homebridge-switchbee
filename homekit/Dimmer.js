@@ -22,7 +22,7 @@ class Dimmer {
 		this.type = 'Dimmer'
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
-		this.setDelay = 600
+		this.setDelay = 1000
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 		
