@@ -69,7 +69,7 @@ module.exports = (device, platform) => {
 				setTimeout(() => {
 					platform.setProcessing = false
 					device.updateHomeKit()
-				}, 500)
+				}, 1500)
 
 			}, device.setDelay || setTimeoutDelay)
 
