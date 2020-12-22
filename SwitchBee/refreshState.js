@@ -45,6 +45,8 @@ module.exports = (platform) => {
 				
 				Object.values(platform.connectedDevices).forEach(device => {
 					if (device.id in platform.state) {
+						if (platform.state[device.id] === -1)
+							platform.log.error(`${device.name} is DISCONNECTED !! please check the status in the SwitchBee app...`)
 						device.state.update(unified.state[device.type](platform.state[device.id], device))
 					}
 				})

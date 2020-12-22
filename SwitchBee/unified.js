@@ -95,33 +95,33 @@ module.exports = {
 	state:  {
 		Switch: (state) => {
 			return {
-				On: (state && state !== 'OFF')
+				On: (state && state !== 'OFF' && state !== -1)
 			}
 		},
 
 		Dimmer: (state) => {
 			return {
-				On: (state && state !== 'OFF' && state !== 0),
-				Brightness: (state && state !== 'OFF' && state !== 0) ? state : 0
+				On: (state && state !== 'OFF' && state !== 0 && state !== -1),
+				Brightness: (state && state !== 'OFF' && state !== 0 && state !== -1) ? state : 0
 			}
 		},
 
 		Outlet: (state) => {
 			return {
-				On: (state && state !== 'OFF')
+				On: (state && state !== 'OFF' && state !== -1)
 			}
 		},
 		
 		Lock: (state) => {
 			return {
-				LockState: (state && state !== 'OFF') ? 0 : 1
+				LockState: (state && state !== 'OFF' && state !== -1) ? 0 : 1
 			}
 		},
 		
 		Shutter: (state, device) => {
 			return {
-				CurrentPosition: (state && state !== 'OFF'  && state > 0) ? state : 0,
-				TargetPosition: (state && state !== 'OFF'  && state > 0) ? state : 0,
+				CurrentPosition: (state && state !== 'OFF' && state !== -1) ? state : 0,
+				TargetPosition: (state && state !== 'OFF' && state !== -1) ? state : 0,
 				PositionState: device.positionState
 			}
 
@@ -129,8 +129,8 @@ module.exports = {
 		
 		Valve: (state) => {
 			return {
-				Active: (state && state !== 'OFF') ? 1 : 0,
-				RemainingDuration: (state && state !== 'OFF'  && state > 0) ? state * 60 : 0
+				Active: (state && state !== 'OFF' && state !== -1) ? 1 : 0,
+				RemainingDuration: (state && state !== 'OFF'  && state > 0 && state !== -1) ? state * 60 : 0
 			}
 
 		},
