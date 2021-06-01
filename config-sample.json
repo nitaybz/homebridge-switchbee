@@ -15,6 +15,7 @@
       "password": "*******",
       "statePollingInterval": 10,
       "debug": false,
+      "preventRemoval": false,
       "devices": [
         {
           "id": 1,

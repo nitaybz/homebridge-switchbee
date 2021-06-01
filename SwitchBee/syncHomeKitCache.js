@@ -81,6 +81,9 @@ module.exports = (platform) => {
 			}
 		})
 
+		if (platform.preventRemoval)
+			return
+
 
 		const devicesDetected = Object.keys(platform.devices).map(id => parseInt(id))
 		// find devices to remove

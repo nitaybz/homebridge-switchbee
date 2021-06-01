@@ -32,6 +32,7 @@ class SwitchBeePlatform {
 		this.ip = config['ip']
 		this.username = config['username']
 		this.password = config['password']
+		this.preventRemoval = config['preventRemoval'] || false
 		
 		if (!this.username || !this.password || !this.ip) {
 			this.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  --  ERROR  --  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')

@@ -33,6 +33,13 @@
         "minimum": 3,
         "maximum": 30
       },
+      "preventRemoval": {
+        "title": "Prevent automatic removal of disconnected devices",
+        "description": "When checked, the plugin will not remove accessories from HomeKit when they are removed from the SwitchBee Gateway",
+        "type": "boolean",
+        "default": false,
+        "required": false
+      },
       "debug": {
         "title": "Enable Debug Logs",
         "description": "When checked, the plugin will produce extra logs for debugging purposes",
