@@ -158,6 +158,9 @@
       "key": "statePollingInterval"
     },
     {
+      "key": "preventRemoval"
+    },
+    {
       "key": "debug"
     },
     {
