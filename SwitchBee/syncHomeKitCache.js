@@ -69,6 +69,7 @@ module.exports = (platform) => {
 					platform.connectedDevices[device.id] = new Dimmer(device, platform)
 					break
 
+				case 'LOUVERED_SHUTTER':
 				case 'SHUTTER':
 					platform.connectedDevices[device.id] = new Shutter(device, platform, deviceConfig)
 					break
