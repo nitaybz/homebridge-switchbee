@@ -25,9 +25,6 @@ class Outlet {
 		this.defaultDuration = device.defaultDuration
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
-		
-		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
-		this.state = new Proxy(this.state, StateHandler)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -96,7 +93,9 @@ class Outlet {
 	}
 
 
-	updateHomeKit() {
+	updateHomeKit(newState) {
+		this.state = newState
+		
 		this.updateValue('OutletService', 'On', this.state.On)
 		this.updateValue('OutletService', 'OutletInUse', this.state.On)
 		// cache last state to storage

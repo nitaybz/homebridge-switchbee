@@ -25,9 +25,6 @@ class Lock {
 		this.defaultDuration = device.defaultDuration
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
-		
-		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
-		this.state = new Proxy(this.state, StateHandler)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -95,7 +92,9 @@ class Lock {
 	}
 
 
-	updateHomeKit() {
+	updateHomeKit(newState) {
+		this.state = newState
+
 		this.updateValue('LockService', 'LockCurrentState', this.state.LockState)
 		this.updateValue('LockService', 'LockTargetState', this.state.LockState)
 		// cache last state to storage

@@ -26,9 +26,6 @@ class Dimmer {
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 		
-		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
-		this.state = new Proxy(this.state, StateHandler)
-
 		this.stateManager = require('./StateManager')(this, platform)
 
 		this.UUID = this.api.hap.uuid.generate(this.id + this.type)
@@ -76,7 +73,9 @@ class Dimmer {
 	}
 
 
-	updateHomeKit() {
+	updateHomeKit(newState) {
+		this.state = newState
+
 		this.updateValue('DimmerService', 'On', this.state.On)
 		this.updateValue('DimmerService', 'Brightness', this.state.Brightness)
 		// cache last state to storage

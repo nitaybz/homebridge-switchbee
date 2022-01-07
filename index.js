@@ -42,16 +42,14 @@ class SwitchBeePlatform {
 		}
 
 		this.persistPath = path.join(this.api.user.persistPath(), '/../switchbee-persist')
-		let requestedInterval = config['statePollingInterval']*1000 || 10000 // default polling time is 30 seconds
-		if (requestedInterval < 3000) requestedInterval = 3000 // minimum 3 seconds to not overload
+		let requestedInterval = config['statePollingInterval']*1000 || 10000 // default polling time is 10 seconds
+		if (requestedInterval < 2000) requestedInterval = 2000 // minimum 2 seconds to not overload
 		this.refreshDelay = 1000
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 		this.setProcessing = false
-		this.pollingTimeout = null
-		this.processingState = false
-		this.pollingInterval = requestedInterval - this.refreshDelay
+		this.pollingInterval = requestedInterval
 
 		// define debug method to output debug logs when enabled in the config
 		this.log.easyDebug = (...content) => {
@@ -107,7 +105,8 @@ class SwitchBeePlatform {
 			}
 			
 			this.syncHomeKitCache()
-			this.pollingTimeout = setTimeout(this.refreshState, this.pollingInterval)
+			this.refreshState()
+			setInterval(this.refreshState, this.pollingInterval)
 			
 		})
 

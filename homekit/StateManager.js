@@ -1,3 +1,4 @@
+const unified = require('../SwitchBee/unified')
 let Characteristic
 
 function toFahrenheit(value) {
@@ -19,6 +20,25 @@ function characteristicToMode(characteristic) {
 module.exports = (device, platform) => {
 	Characteristic = platform.api.hap.Characteristic
 	const log = platform.log
+	const SwitchBeeApi = platform.SwitchBeeApi
+
+	const setState = async (state) => {
+		platform.setProcessing = true
+		const newState = unified.setState(device, state)
+		log(device.name, ' -> Setting New State:')
+		log(JSON.stringify(newState, null, 2))
+		
+		try {
+			// send state command to Sensibo
+			await SwitchBeeApi.setDeviceState(device.id, newState)
+			device.updateHomeKit(state)
+			platform.setProcessing = false
+		} catch(err) {
+			log(device.name, ' -> ERROR setting new state:')
+			log(err)
+			platform.setProcessing = false
+		}
+	}
 
 	return {
 
@@ -198,6 +218,7 @@ module.exports = (device, platform) => {
 			On: (state, callback) => {
 				device.state.On = state
 				log(device.name + ' -> Setting On state to', state)
+				setState(device.state)
 				callback()
 			},
 
@@ -207,18 +228,21 @@ module.exports = (device, platform) => {
 				} else
 					device.state.On = false
 				log(device.name + ' -> Setting Brightness to', brightness + '%')
+				setState(device.state)
 				callback()
 			},
 
 			LockTargetState: (state, callback) => {
 				device.state.LockState = state
 				log(device.name + ' -> Setting Lock State to', state ? 'SECURED' : 'UNSECURED')
+				setState(device.state)
 				callback()
 			},
 
 			Active: (state, callback) => {
 				device.state.Active = state
 				log(device.name + ' -> Setting Active state to', state)
+				setState(device.state)
 				callback()
 			},
 
@@ -229,6 +253,7 @@ module.exports = (device, platform) => {
 				log(device.name + ' -> Setting Duration to', formattedTime)
 				device.duration = seconds
 				device.accessory.context.duration = seconds	
+				setState(device.state)
 				callback()
 			},
 
@@ -243,7 +268,8 @@ module.exports = (device, platform) => {
 					log(device.name + ' -> Setting Position to' + position + '%')
 				else
 					log(device.name + ' -> Shutters are busy - Stopping them!')
-
+				
+				setState(device.state)
 				callback()
 			},
 
@@ -261,6 +287,8 @@ module.exports = (device, platform) => {
 					device.state.CurrentPosition = newPosition
 					log(device.name + ' -> Setting Position to' + newPosition + '%')
 				}
+				
+				setState(device.state)
 				callback()
 			},
 
@@ -277,6 +305,7 @@ module.exports = (device, platform) => {
 				} else if (device.state.mode === 'COOL' || device.state.mode === 'HEAT' || device.state.mode === 'AUTO')
 					device.state.Active = 0
 
+				setState(device.state)
 				callback()
 			},
 		
@@ -287,6 +316,7 @@ module.exports = (device, platform) => {
 				device.state.mode = mode
 				device.state.Active = 1
 
+				setState(device.state)
 				callback()
 			},
 		
@@ -312,6 +342,8 @@ module.exports = (device, platform) => {
 						},100)
 					}
 				}
+
+				setState(device.state)
 				callback()
 			},
 		
@@ -338,6 +370,8 @@ module.exports = (device, platform) => {
 						},100)
 					}
 				}
+
+				setState(device.state)
 				callback()
 			},
 			ACSwing: (state, callback) => {
@@ -352,6 +386,7 @@ module.exports = (device, platform) => {
 				device.state.Active = 1
 				device.state.mode = mode
 
+				setState(device.state)
 				callback()
 			},
 		
@@ -365,6 +400,7 @@ module.exports = (device, platform) => {
 				device.state.Active = 1
 				device.state.mode = mode
 
+				setState(device.state)
 				callback()
 			}
 		}

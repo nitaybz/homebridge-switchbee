@@ -27,9 +27,6 @@ class Thermostat {
 		this.setDelay = 600
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
-		
-		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
-		this.state = new Proxy(this.state, StateHandler)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -123,7 +120,9 @@ class Thermostat {
 	}
 
 
-	updateHomeKit() {
+	updateHomeKit(newState) {
+		this.state = newState
+		
 		
 		// update measurements
 		this.updateValue('HeaterCoolerService', 'CurrentTemperature', this.state.CurrentTemperature)

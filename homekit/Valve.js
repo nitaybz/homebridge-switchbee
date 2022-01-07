@@ -26,10 +26,6 @@ class Valve {
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
 
-		
-		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
-		this.state = new Proxy(this.state, StateHandler)
-
 		this.stateManager = require('./StateManager')(this, platform)
 
 		this.UUID = this.api.hap.uuid.generate(this.id + this.type)
@@ -105,7 +101,9 @@ class Valve {
 	}
 
 
-	updateHomeKit() {
+	updateHomeKit(newState) {
+		this.state = newState
+		
 		this.updateValue('ValveService', 'Active', this.state.Active)
 		this.updateValue('ValveService', 'InUse', this.state.Active)
 		this.updateValue('ValveService', 'SetDuration', this.duration)

@@ -29,9 +29,6 @@ class Shutter {
 		this.movingTimeout = null
 
 		this.state = this.cachedState[this.id] = unified.state[this.type](device.state, device)
-		
-		const StateHandler = require('../SwitchBee/StateHandler')(this, platform)
-		this.state = new Proxy(this.state, StateHandler)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -103,7 +100,8 @@ class Shutter {
 	}
 
 
-	updateHomeKit() {
+	updateHomeKit(newState) {
+		this.state = newState
 			
 		// set Tilt Angle
 		switch (this.shutterTilt) {
