@@ -17,8 +17,7 @@ class Outlet {
 		this.model = deviceInfo.model
 		this.serial = deviceInfo.serial
 		this.manufacturer = deviceInfo.manufacturer
-		this.roomName = deviceInfo.roomName
-		this.name = deviceInfo.name
+		this.name = deviceInfo.name + ' ' + deviceInfo.roomName
 		this.type = 'Outlet'
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
@@ -32,7 +31,7 @@ class Outlet {
 		this.accessory = platform.accessories.find(accessory => accessory.UUID === this.UUID)
 
 		if (!this.accessory) {
-			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.type} Accessory in the ${this.roomName}: "${this.name}" (id:${this.id})`)
+			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.type} Accessory: "${this.name}" (id:${this.id})`)
 			this.accessory = new this.api.platformAccessory(this.name, this.UUID)
 			this.accessory.context.type = this.type
 			this.accessory.context.deviceId = this.id
@@ -45,7 +44,6 @@ class Outlet {
 		if (this.defaultDuration)
 			this.accessory.context.duration = this.duration = this.defaultDuration
 
-		this.accessory.context.roomName = this.roomName
 
 		let informationService = this.accessory.getService(Service.AccessoryInformation)
 
@@ -105,7 +103,7 @@ class Outlet {
 	updateValue (serviceName, characteristicName, newValue) {
 		if (this[serviceName].getCharacteristic(Characteristic[characteristicName]).value !== newValue) {
 			this[serviceName].getCharacteristic(Characteristic[characteristicName]).updateValue(newValue)
-			this.log(`${this.roomName} ${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
+			this.log(`${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
 		}
 	}
 }
