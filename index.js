@@ -121,6 +121,7 @@ class SwitchBeePlatform {
 
 	async refreshDevicesInterval(minutes = 10) {
 		setInterval(() => {
+			this.devices = await this.SwitchBeeApi.getDevices()
 			await this.storage.setItem('switchbee-configuration', this.devices)
 		}, minutes * 6000)
 	}
