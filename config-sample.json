@@ -16,6 +16,7 @@
       "statePollingInterval": 10,
       "debug": false,
       "preventRemoval": false,
+      "refreshPersist": false,
       "devices": [
         {
           "id": 1,

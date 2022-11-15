@@ -28,12 +28,13 @@ class SwitchBeePlatform {
 		this.syncHomeKitCache = syncHomeKitCache(this)
 
 		// ~~~~~~~~~~~~~~~~~~~~~ SwitchBee Specials ~~~~~~~~~~~~~~~~~~~~~ //
-		
+
 		this.ip = config['ip']
 		this.username = config['username']
 		this.password = config['password']
 		this.preventRemoval = config['preventRemoval'] || false
-		
+		this.refreshPersist = config['refreshPersist'] || false
+
 		if (!this.username || !this.password || !this.ip) {
 			this.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  --  ERROR  --  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')
 			this.log('Can\'t start homebridge-switchbee plugin without IP, username and password !!\n')
@@ -42,7 +43,7 @@ class SwitchBeePlatform {
 		}
 
 		this.persistPath = path.join(this.api.user.persistPath(), '/../switchbee-persist')
-		let requestedInterval = config['statePollingInterval']*1000 || 10000 // default polling time is 10 seconds
+		let requestedInterval = config['statePollingInterval'] * 1000 || 10000 // default polling time is 10 seconds
 		if (requestedInterval < 2000) requestedInterval = 2000 // minimum 2 seconds to not overload
 		this.refreshDelay = 1000
 
@@ -62,7 +63,7 @@ class SwitchBeePlatform {
 					return previous + ' ' + current
 				}))
 		}
-		
+
 		this.api.on('didFinishLaunching', async () => {
 
 			await this.storage.init({
@@ -76,7 +77,8 @@ class SwitchBeePlatform {
 			try {
 				this.devices = await this.SwitchBeeApi.getDevices()
 				await this.storage.setItem('switchbee-configuration', this.devices)
-			} catch(err) {
+				this.refreshPersist && this.refreshDevicesInterval()
+			} catch (err) {
 				this.log('ERR:', err.stack || err.message || err)
 				this.devices = await this.storage.getItem('switchbee-configuration')
 				if (this.devices) {
@@ -92,7 +94,7 @@ class SwitchBeePlatform {
 			try {
 				this.state = await this.SwitchBeeApi.getState(Object.keys(this.devices))
 				await this.storage.setItem('switchbee-raw-state', this.state)
-			} catch(err) {
+			} catch (err) {
 				this.log('ERR:', err.stack || err.message || err)
 				this.state = await this.storage.getItem('switchbee-raw-state')
 				if (this.state) {
@@ -103,11 +105,11 @@ class SwitchBeePlatform {
 					this.state = {}
 				}
 			}
-			
+
 			this.syncHomeKitCache()
 			this.refreshState()
 			setInterval(this.refreshState, this.pollingInterval)
-			
+
 		})
 
 	}
@@ -115,6 +117,12 @@ class SwitchBeePlatform {
 	configureAccessory(accessory) {
 		this.log.easyDebug(`Found Cached Accessory: ${accessory.displayName} (${accessory.context.deviceId}) `)
 		this.accessories.push(accessory)
+	}
+
+	async refreshDevicesInterval(minutes = 10) {
+		setInterval(() => {
+			await this.storage.setItem('switchbee-configuration', this.devices)
+		}, minutes * 6000)
 	}
 
 }
