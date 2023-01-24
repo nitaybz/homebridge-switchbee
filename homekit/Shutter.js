@@ -12,7 +12,6 @@ class Shutter {
 		this.log = platform.log
 		this.api = platform.api
 		this.storage = platform.storage
-		this.cachedState = platform.cachedState
 		this.id = deviceInfo.id
 		this.model = deviceInfo.model
 		this.serial = deviceInfo.serial
@@ -28,7 +27,7 @@ class Shutter {
 		this.positionState = 2
 		this.movingTimeout = null
 
-		this.state = this.cachedState[this.id] = unified.state[this.type](device.state, device)
+		this.state = unified.state[this.type](device.state, device)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -123,8 +122,6 @@ class Shutter {
 		this.updateValue('ShutterService', 'TargetPosition', this.state.TargetPosition)
 		this.updateValue('ShutterService', 'PositionState', this.positionState)
 
-		// cache last state to storage
-		this.storage.setItem('switchbee-state', this.cachedState)
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {

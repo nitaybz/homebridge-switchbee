@@ -12,7 +12,6 @@ class Dimmer {
 		this.log = platform.log
 		this.api = platform.api
 		this.storage = platform.storage
-		this.cachedState = platform.cachedState
 		this.id = deviceInfo.id
 		this.model = deviceInfo.model
 		this.serial = deviceInfo.serial
@@ -23,7 +22,7 @@ class Dimmer {
 		this.installation = deviceInfo.installation
 		this.setDelay = 1000
 
-		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
+		this.state = unified.state[this.type](device.state)
 		
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -75,8 +74,6 @@ class Dimmer {
 
 		this.updateValue('DimmerService', 'On', this.state.On)
 		this.updateValue('DimmerService', 'Brightness', this.state.Brightness)
-		// cache last state to storage
-		this.storage.setItem('switchbee-state', this.cachedState)
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {

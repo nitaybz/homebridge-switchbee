@@ -1,7 +1,7 @@
 {
   "name": "homebridge-switchbee",
   "description": "Homebridge plugin for SwitchBee - Smart Home",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/nitaybz/homebridge-switchbee.git"
@@ -22,7 +22,9 @@
   },
   "dependencies": {
     "axios": "^0.20.0",
-    "node-persist": "^3.0.5"
+    "compare-versions": "^6.0.0-rc.1",
+    "node-persist": "^3.0.5",
+    "ws": "^8.12.0"
   },
   "devDependencies": {
     "eslint": "^7.1.0"

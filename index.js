@@ -1,4 +1,5 @@
 const SwitchBeeApi = require('./SwitchBee/api')
+const WebsocketApi = require('./SwitchBee/websocketApi')
 const syncHomeKitCache = require('./SwitchBee/syncHomeKitCache')
 const refreshState = require('./SwitchBee/refreshState')
 const path = require('path')
@@ -44,7 +45,6 @@ class SwitchBeePlatform {
 		this.persistPath = path.join(this.api.user.persistPath(), '/../switchbee-persist')
 		let requestedInterval = config['statePollingInterval']*1000 || 10000 // default polling time is 10 seconds
 		if (requestedInterval < 2000) requestedInterval = 2000 // minimum 2 seconds to not overload
-		this.refreshDelay = 1000
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -69,42 +69,47 @@ class SwitchBeePlatform {
 				dir: this.persistPath,
 				forgiveParseErrors: true
 			})
-			this.cachedState = await this.storage.getItem('switchbee-state') || {}
 			this.SwitchBeeApi = await SwitchBeeApi(this)
 
-			// get configurations
+			let version = null
+			// get version
 			try {
-				this.devices = await this.SwitchBeeApi.getDevices()
-				await this.storage.setItem('switchbee-configuration', this.devices)
+				version = await this.SwitchBeeApi.getVersion()
+				await this.storage.setItem('switchbee-version', version)
 			} catch(err) {
 				this.log('ERR:', err.stack || err.message || err)
-				this.devices = await this.storage.getItem('switchbee-configuration')
-				if (this.devices) {
-					this.log.easyDebug('Got configurations from storage:')
-					this.log.easyDebug(JSON.stringify(this.devices))
-				} else {
-					this.log.easyDebug('Configurations not found in storage.... initiating with empty configurations')
-					this.devices = {}
-				}
+				version = await this.storage.getItem('switchbee-version')
 			}
 
-			// get states
-			try {
-				this.state = await this.SwitchBeeApi.getState(Object.keys(this.devices))
-				await this.storage.setItem('switchbee-raw-state', this.state)
-			} catch(err) {
-				this.log('ERR:', err.stack || err.message || err)
-				this.state = await this.storage.getItem('switchbee-raw-state')
-				if (this.state) {
-					this.log.easyDebug('Got state from storage:')
-					this.log.easyDebug(JSON.stringify(this.state))
-				} else {
-					this.log.easyDebug('State not found in storage.... initiating with empty state')
-					this.state = {}
-				}
+			// use Websocket API on newer versions
+			if (version && version.isNew) {
+				this.log.easyDebug(`New version found ${version.version} - Using Websocket API`)
+				this.SwitchBeeApi = await WebsocketApi(this)
+				this.isNewVersion = true
+				this.log.easyDebug(`Forcing polling interval to 10 minutes since it's working with websocket - only to validate states and devices`)
+				this.pollingInterval = 600000
+			}
+
+			// get configurations from storage
+			this.devices = await this.storage.getItem('switchbee-configuration')
+			if (this.devices) {
+				this.log.easyDebug('Got configurations from storage:')
+				this.log.easyDebug(JSON.stringify(this.devices))
+			} else {
+				this.log.easyDebug('Configurations not found in storage.... initiating with empty configurations')
+				this.devices = {}
+			}
+
+			// get states from storage
+			this.state = await this.storage.getItem('switchbee-raw-state')
+			if (this.state) {
+				this.log.easyDebug('Got state from storage:')
+				this.log.easyDebug(JSON.stringify(this.state))
+			} else {
+				this.log.easyDebug('State not found in storage.... initiating with empty state')
+				this.state = {}
 			}
 			
-			this.syncHomeKitCache()
 			this.refreshState()
 			setInterval(this.refreshState, this.pollingInterval)
 			

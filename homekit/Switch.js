@@ -12,7 +12,6 @@ class Switch {
 		this.log = platform.log
 		this.api = platform.api
 		this.storage = platform.storage
-		this.cachedState = platform.cachedState
 		this.id = deviceInfo.id
 		this.model = deviceInfo.model
 		this.serial = deviceInfo.serial
@@ -24,7 +23,7 @@ class Switch {
 		this.installation = deviceInfo.installation
 		this.defaultDuration = device.defaultDuration
 
-		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
+		this.state = unified.state[this.type](device.state)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -74,7 +73,7 @@ class Switch {
 			if (this.accessory.context.duration)
 				this.duration = this.accessory.context.duration
 			else 
-				this.accessory.context.duration = this.duration = this.defaultDuration || 5400
+				this.accessory.context.duration = this.duration = this.defaultDuration || 3600
 
 			this.SwitchService.getCharacteristic(Characteristic.SetDuration)
 				.setProps({
@@ -93,8 +92,6 @@ class Switch {
 		this.state = newState
 		
 		this.updateValue('SwitchService', 'On', this.state.On)
-		// cache last state to storage
-		this.storage.setItem('switchbee-state', this.cachedState)
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {

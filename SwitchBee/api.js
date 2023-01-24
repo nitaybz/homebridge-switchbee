@@ -1,5 +1,6 @@
 const axios = require('axios')
 const https = require('https')
+const compareVersions = require('compare-versions').compare
 let log, token, username, password
 
 module.exports = async function (platform) {
@@ -13,6 +14,22 @@ module.exports = async function (platform) {
 	})
 	
 	return {
+	
+		getVersion: async () => {
+			try {
+				log.easyDebug(`Getting version from the device`)
+				const configurations = await request('GET_CONFIGURATION')
+				const version = configurations.version
+				log.easyDebug(`Found Version ${version}`)
+				const modifiedVersion = version.replace('(', '.').replace(')', '')
+				const newerVersion = '1.4.6.2'
+				const isNew = compareVersions(modifiedVersion, newerVersion, '>')
+				return { version, isNew }
+			} catch(err) {
+				log(`Failed to get devices configurations!!`)
+				throw err
+			}
+		},
 	
 		getDevices: async () => {
 			try {

@@ -25,17 +25,19 @@ module.exports = (device, platform) => {
 	const setState = async (state) => {
 		platform.setProcessing = true
 		const newState = unified.setState(device, state)
-		log(device.name, ' -> Setting New State:')
-		log(JSON.stringify(newState, null, 2))
-		
 		try {
 			// send state command to Sensibo
-			await SwitchBeeApi.setDeviceState(device.id, newState)
-			device.updateHomeKit(state)
+			if (device.type === 'IR')
+				await SwitchBeeApi.setDeviceState(device.transmitterId, newState)
+			else {
+				log(device.name, ' -> Setting New State:', JSON.stringify(newState, null, 2))
+				await SwitchBeeApi.setDeviceState(device.id, newState)
+			}
+			// device.updateHomeKit(state)
 			platform.setProcessing = false
 		} catch(err) {
-			log(device.name, ' -> ERROR setting new state:')
-			log(err)
+			log.error(device.name, ' -> ERROR setting new state:')
+			log.error(err)
 			platform.setProcessing = false
 		}
 	}
@@ -222,6 +224,28 @@ module.exports = (device, platform) => {
 				callback()
 			},
 
+			Scene: (state, callback) => {
+				if (state) {
+					log(device.name + ' -> Setting Scene On')
+					setState({On: true})
+					setInterval(() => {
+						device.SwitchService.getCharacteristic(Characteristic.On).updateValue(false)
+					}, 2000)
+				}
+				callback()
+			},
+
+			IR: (state, callback, code) => {
+				if (state) {
+					log(`${device.name} -> Sending IR Command ${code.name}(${code.value})`)
+					setState(code.value)
+					setInterval(() => {
+						device.SwitchServices[code.value].getCharacteristic(Characteristic.On).updateValue(false)
+					}, 2000)
+				}
+				callback()
+			},
+
 			Brightness: (brightness, callback) => {
 				if (brightness > 0) {
 					device.state.Brightness = brightness
@@ -331,13 +355,13 @@ module.exports = (device, platform) => {
 				const mode = characteristicToMode(lastMode)
 				if (mode !== 'AUTO') {
 					device.state.targetTemperature = temp
-					log.easyDebug(device.name + ' -> Setting Mode to: COOL')
+					// log.easyDebug(device.name + ' -> Setting Mode to: COOL')
 					device.state.mode = 'COOL'
 				} else {
 					if (device.state.targetTemperature !== temp) {
 						setTimeout(() => {
 							device.state.targetTemperature = temp
-							log.easyDebug(device.name + ' -> Setting Mode to: AUTO')
+							// log.easyDebug(device.name + ' -> Setting Mode to: AUTO')
 							device.state.mode = 'AUTO'
 						},100)
 					}
@@ -359,13 +383,13 @@ module.exports = (device, platform) => {
 				const mode = characteristicToMode(lastMode)
 				if (mode !== 'AUTO') {
 					device.state.targetTemperature = temp
-					log.easyDebug(device.name + ' -> Setting Mode to: HEAT')
+					// log.easyDebug(device.name + ' -> Setting Mode to: HEAT')
 					device.state.mode = 'HEAT'
 				} else {
 					if (device.state.targetTemperature !== temp) {
 						setTimeout(() => {
 							device.state.targetTemperature = temp
-							log(device.name + ' -> Setting Mode to: AUTO')
+							// log(device.name + ' -> Setting Mode to: AUTO')
 							device.state.mode = 'AUTO'
 						},100)
 					}
@@ -382,7 +406,7 @@ module.exports = (device, platform) => {
 
 				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
 				const mode = characteristicToMode(lastMode)
-				log(device.name + ' -> Setting Mode to', mode)
+				// log(device.name + ' -> Setting Mode to', mode)
 				device.state.Active = 1
 				device.state.mode = mode
 
@@ -396,7 +420,7 @@ module.exports = (device, platform) => {
 
 				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
 				const mode = characteristicToMode(lastMode)
-				log(device.name + ' -> Setting Mode to', mode)
+				// log(device.name + ' -> Setting Mode to', mode)
 				device.state.Active = 1
 				device.state.mode = mode
 

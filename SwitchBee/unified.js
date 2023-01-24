@@ -51,64 +51,23 @@ module.exports = {
 		}
 	},
 
-	// capabilities: device => {
-
-	// 	const capabilities = {}
-
-	// 	for (const [key, modeCapabilities] of Object.entries(device.remoteCapabilities.modes)) {
-
-	// 		// Mode options are COOL, HEAT, AUTO, FAN, DRY
-	// 		const mode = key.toUpperCase()
-
-	// 		capabilities[mode] = {}
-
-	// 		// set temperatures min & max
-	// 		if (['COOL', 'HEAT', 'AUTO'].includes(mode) && modeCapabilities.temperatures && modeCapabilities.temperatures.C) {
-	// 			capabilities[mode].temperatures = {
-	// 				C: {
-	// 					min: modeCapabilities.temperatures.C.values[0],
-	// 					max: modeCapabilities.temperatures.C.values[modeCapabilities.temperatures.C.values.length - 1]
-	// 				},
-	// 				F: {
-	// 					min: modeCapabilities.temperatures.F.values[0],
-	// 					max: modeCapabilities.temperatures.F.values[modeCapabilities.temperatures.F.values.length - 1]
-	// 				}
-	// 			}
-	// 		}
-
-	// 		// set fanSpeeds
-	// 		if (modeCapabilities.fanLevels && modeCapabilities.fanLevels.length) {
-	// 			capabilities[mode].fanSpeeds = modeCapabilities.fanLevels
-
-	// 			// set AUTO fanSpeed
-	// 			if (capabilities[mode].fanSpeeds.includes('auto'))
-	// 				capabilities[mode].autoFanSpeed = true
-	// 			else
-	// 				capabilities[mode].autoFanSpeed = false
-				
-	// 		}
-	// 	}
-
-	// 	return capabilities
-	// },
-
 	state:  {
 		Switch: (state) => {
 			return {
-				On: (state && state !== 'OFF' && state !== -1)
+				On: !!(state && state !== 'OFF' && state !== -1)
 			}
 		},
 
 		Dimmer: (state) => {
 			return {
-				On: (state && state !== 'OFF' && state !== 0 && state !== -1),
+				On: !!(state && state !== 'OFF' && state !== 0 && state !== -1),
 				Brightness: (state && state !== 'OFF' && state !== 0 && state !== -1) ? state : 0
 			}
 		},
 
 		Outlet: (state) => {
 			return {
-				On: (state && state !== 'OFF' && state !== -1)
+				On: !!(state && state !== 'OFF' && state !== -1)
 			}
 		},
 		
@@ -150,8 +109,12 @@ module.exports = {
 	setState: (device, state) => {
 
 		switch(device.installation) {
-			case 'SWITCH': 
+			case 'SWITCH':
 			case 'TIMED_SWITCH':
+			case 'GROUP_SWITCH':
+			case 'LOCK_GROUP':
+			case 'SCENARIO':
+			case 'ROLLING_SCENARIO':
 				switch (device.type) {
 					case 'Lock':
 						return (state.LockState ? 'OFF' : 'ON')
@@ -182,6 +145,9 @@ module.exports = {
 					fan:  HKToFanLevel(state.fanSpeed, fanLevels),
 					configuredTemperature: state.targetTemperature
 				}
+				
+			case 'IR_DEVICE':
+				return state
 		}
 	}
 }

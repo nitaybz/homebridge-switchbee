@@ -1,7 +1,7 @@
 const unified = require('../SwitchBee/unified')
 let Characteristic, Service
 
-class Valve {
+class Switch {
 	constructor(device, platform) {
 
 		Service = platform.api.hap.Service
@@ -18,12 +18,10 @@ class Valve {
 		this.manufacturer = deviceInfo.manufacturer
 		this.roomName = deviceInfo.roomName
 		this.name = deviceInfo.name + ' ' + deviceInfo.roomName
-		this.type = 'Valve'
+		this.type = 'Scene'
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
 		this.defaultDuration = device.defaultDuration
-
-		this.state = unified.state[this.type](device.state)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -41,15 +39,6 @@ class Valve {
 			this.api.registerPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
 		}
 
-		if (this.defaultDuration)
-			this.accessory.context.duration = this.duration = this.defaultDuration
-			
-
-		if (this.accessory.context.duration)
-			this.duration = this.accessory.context.duration
-		else 
-			this.accessory.context.duration = this.duration = this.defaultDuration || 3600
-
 		let informationService = this.accessory.getService(Service.AccessoryInformation)
 
 		if (!informationService)
@@ -61,60 +50,34 @@ class Valve {
 			.setCharacteristic(Characteristic.SerialNumber, this.serial)
 
 		
-		this.addValveService()
+		this.addSwitchService()
 	}
 
-	addValveService() {
-		this.ValveService = this.accessory.getService(Service.Valve)
-		if (!this.ValveService)
-			this.ValveService = this.accessory.addService(Service.Valve, this.name, this.type)
+	addSwitchService() {
+		this.SwitchService = this.accessory.getService(Service.Switch)
+		if (!this.SwitchService)
+			this.SwitchService = this.accessory.addService(Service.Switch, this.name, this.type)
 
-		
-		this.ValveService.getCharacteristic(Characteristic.ValveType)
-			.updateValue(2)
-				
-		this.ValveService.getCharacteristic(Characteristic.Active)
-			.on('get', this.stateManager.get.Active)
-			.on('set', this.stateManager.set.Active)
-	
-		this.ValveService.getCharacteristic(Characteristic.InUse)
-			.on('get', this.stateManager.get.InUse)
-	
-		this.ValveService.getCharacteristic(Characteristic.SetDuration)
-			.setProps({
-				maxValue: 180000,
-				minValue: 60,
-				minStep: 60
+		this.SwitchService.getCharacteristic(Characteristic.On)
+			.on('get', (callback) => {
+				callback(null, false)
 			})
-			.on('get', this.stateManager.get.SetDuration)
-			.on('set', this.stateManager.set.SetDuration)
-
-		this.ValveService.getCharacteristic(Characteristic.RemainingDuration)
-			.setProps({
-				maxValue: 180000,
-				minValue: 0,
-				minStep: 1
-			})
-			.on('get', this.stateManager.get.RemainingDuration)
+			.on('set', this.stateManager.set.Scene)
 	}
 
 
-	updateHomeKit(newState) {
-		this.state = newState
-		
-		this.updateValue('ValveService', 'Active', this.state.Active)
-		this.updateValue('ValveService', 'InUse', this.state.Active)
-		this.updateValue('ValveService', 'SetDuration', this.duration)
-		this.updateValue('ValveService', 'RemainingDuration', this.state.RemainingDuration)
+
+	updateHomeKit() {
+		this.updateValue('SwitchService', 'On', false)
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {
 		if (this[serviceName].getCharacteristic(Characteristic[characteristicName]).value !== newValue) {
 			this[serviceName].getCharacteristic(Characteristic[characteristicName]).updateValue(newValue)
-			this.log(`${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
+			// this.log(`${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
 		}
 	}
 }
 
 
-module.exports = Valve
+module.exports = Switch

@@ -12,7 +12,6 @@ class Thermostat {
 		this.log = platform.log
 		this.api = platform.api
 		this.storage = platform.storage
-		this.cachedState = platform.cachedState
 		this.id = deviceInfo.id
 		this.model = deviceInfo.model
 		this.serial = deviceInfo.serial
@@ -21,12 +20,12 @@ class Thermostat {
 		this.name = deviceInfo.name + ' ' + deviceInfo.roomName
 		this.type = 'Thermostat'
 		this.displayName = this.name
-		this.modes = device.modes
-		this.usesFahrenheit = device.temperatureUnits !== 'CELSIUS'
+		this.modes = ['COOL', 'HEAT', 'FAN']
+		this.usesFahrenheit = false
 		this.installation = deviceInfo.installation
 		this.setDelay = 600
 
-		this.state = this.cachedState[this.id] = unified.state[this.type](device.state)
+		this.state = unified.state[this.type](device.state)
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -148,8 +147,6 @@ class Thermostat {
 			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.HEATING)
 		}
 
-		// cache last state to storage
-		this.storage.setItem('switchbee-state', this.cachedState)
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {
