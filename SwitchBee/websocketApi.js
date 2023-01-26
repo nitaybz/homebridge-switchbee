@@ -62,12 +62,9 @@ module.exports = async function (platform) {
 					reject(err)
 					return
 				}
-				
-				// if (params)
-				// 	log.easyDebug('params: ' +JSON.stringify(params))
 		
-				commandId ++ 
-				const thisCommand = commandId
+				// commandId ++ 
+				const thisCommand = Math.floor(Math.random() * 1000000);
 				log.easyDebug(`Creating WebSocket ${command} request(${thisCommand}) to SwitchBee Central Unit --->`)
 				const message = JSON.stringify({ commandId: thisCommand, token: requestToken, command, params })
 				log.easyDebug(`WebSocket message to send: ${message}`)
