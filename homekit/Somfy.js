@@ -60,8 +60,6 @@ class Shutter {
 
 		
 		this.addShutterService()
-
-		console.log(this.accessory)
 	}
 
 	addShutterService() {

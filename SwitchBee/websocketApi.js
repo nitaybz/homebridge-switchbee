@@ -74,7 +74,7 @@ module.exports = async function (platform) {
 				connection.send(message)
 				const waitingTimeout = setTimeout(() => {
 					const error = `ERROR: No response from websocket after ${waitTime}ms for request ${thisCommand}`
-					eventEmitter.off(`command_${thisCommand}`)
+					eventEmitter.removeAllListeners(`command_${thisCommand}`)
 					reject(error)
 
 				}, waitTime)
