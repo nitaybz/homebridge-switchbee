@@ -85,6 +85,15 @@ module.exports = {
 			}
 
 		},
+
+		Somfy: (state, device) => {
+			return {
+				CurrentPosition: device.state.CurrentPosition,
+				TargetPosition: device.state.TargetPosition,
+				PositionState: device.positionState
+			}
+
+		},
 		
 		Valve: (state) => {
 			return {
@@ -137,6 +146,9 @@ module.exports = {
 
 			case 'SHUTTER':
 				return state.TargetPosition
+
+			case 'SOMFY':
+				return state
 
 			case 'THERMOSTAT':
 				return {

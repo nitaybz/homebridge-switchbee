@@ -1,8 +1,8 @@
 const unified = require('../SwitchBee/unified')
 let Characteristic, Service
 
-class Switch {
-	constructor(device, platform) {
+class Shutter {
+	constructor(device, platform, config) {
 
 		Service = platform.api.hap.Service
 		Characteristic = platform.api.hap.Characteristic
@@ -18,11 +18,13 @@ class Switch {
 		this.manufacturer = deviceInfo.manufacturer
 		this.roomName = deviceInfo.roomName
 		this.name = deviceInfo.name + ' ' + deviceInfo.roomName
-		this.type = 'IR'
+		this.type = 'Somfy'
 		this.displayName = this.name
 		this.installation = deviceInfo.installation
-		this.transmitterId = device.transmitterId
-		this.codes = device.codes
+		this.setDelay = 600
+		this.positionState = 2
+		this.movingTimeout = null
+
 
 		this.stateManager = require('./StateManager')(this, platform)
 
@@ -35,11 +37,17 @@ class Switch {
 			this.accessory.context.type = this.type
 			this.accessory.context.deviceId = this.id
 
+			this.accessory.context.position = 0
 			platform.accessories.push(this.accessory)
 			// register the accessory
 			this.api.registerPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
 		}
 
+		this.state =  {
+			CurrentPosition: this.accessory.context.position,
+			TargetPosition: this.accessory.context.position,
+			PositionState: 2
+		}
 		let informationService = this.accessory.getService(Service.AccessoryInformation)
 
 		if (!informationService)
@@ -50,43 +58,46 @@ class Switch {
 			.setCharacteristic(Characteristic.Model, this.model)
 			.setCharacteristic(Characteristic.SerialNumber, this.serial)
 
-		// remove deleted IR switches
-		this.accessory.services.forEach(service => {
-			const thisSwitchService = this.codes.find(code => code.name === service.displayName)
-			if (!thisSwitchService)
-				this.accessory.removeService(service)
-		})
+		
+		this.addShutterService()
 
-		this.codes.forEach(code => {
-			this.addSwitchService(code)
-		})
+		console.log(this.accessory)
 	}
 
-	addSwitchService(code) {
-		this.SwitchService = this.accessory.getService(code.name)
-		if (!this.SwitchService)
-			this.SwitchService = this.accessory.addService(Service.Switch, code.name, code.name)
+	addShutterService() {
+		this.ShutterService = this.accessory.getService(Service.WindowCovering)
+		if (!this.ShutterService)
+			this.ShutterService = this.accessory.addService(Service.WindowCovering, this.name, this.type)
 
-		this.SwitchService.getCharacteristic(Characteristic.On)
-			.on('get', (callback) => {
-				callback(null, false)
+		this.ShutterService.getCharacteristic(Characteristic.CurrentPosition)
+			.on('get', this.stateManager.get.CurrentPosition)
+
+		this.ShutterService.getCharacteristic(Characteristic.TargetPosition)
+			.setProps({
+				minValue: 0,
+				maxValue: 100,
+				minStep: 50,
 			})
-			.on('set', this.stateManager.set.IR.bind(this, code))
-	}
+			.on('get', this.stateManager.get.TargetPosition)
+			.on('set', this.stateManager.set.SomfyTargetPosition)
 
+		this.ShutterService.getCharacteristic(Characteristic.PositionState)
+			.on('get', this.stateManager.get.PositionState)
+
+	}
 
 
 	updateHomeKit() {
-		this.updateValue('SwitchService', 'On', false)
+		this.accessory.context.position = this.state.TargetPosition
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {
 		if (this[serviceName].getCharacteristic(Characteristic[characteristicName]).value !== newValue) {
 			this[serviceName].getCharacteristic(Characteristic[characteristicName]).updateValue(newValue)
-			// this.log(`${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
+			this.log(`${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
 		}
 	}
 }
 
 
-module.exports = Switch
+module.exports = Shutter

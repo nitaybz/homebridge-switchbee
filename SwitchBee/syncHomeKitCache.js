@@ -7,6 +7,7 @@ const Shutter = require('../homekit/Shutter')
 const Scene = require('../homekit/Scene')
 const Thermostat = require('../homekit/Thermostat')
 const IR = require('../homekit/IR')
+const Somfy = require('../homekit/Somfy')
 
 module.exports = (platform) => {
 	return () => {
@@ -81,6 +82,10 @@ module.exports = (platform) => {
 				case 'LOUVERED_SHUTTER':
 				case 'SHUTTER':
 					platform.connectedDevices[device.id] = new Shutter(device, platform, deviceConfig)
+					break
+
+				case 'SOMFY':
+					platform.connectedDevices[device.id] = new Somfy(device, platform)
 					break
 
 				case 'THERMOSTAT':

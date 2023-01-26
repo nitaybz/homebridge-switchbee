@@ -33,7 +33,7 @@ module.exports = (device, platform) => {
 				log(device.name, ' -> Setting New State:', JSON.stringify(newState, null, 2))
 				await SwitchBeeApi.setDeviceState(device.id, newState)
 			}
-			// device.updateHomeKit(state)
+			device.updateHomeKit(state)
 			platform.setProcessing = false
 		} catch(err) {
 			log.error(device.name, ' -> ERROR setting new state:')
@@ -294,6 +294,36 @@ module.exports = (device, platform) => {
 					log(device.name + ' -> Shutters are busy - Stopping them!')
 				
 				setState(device.state)
+				callback()
+			},
+
+			SomfyTargetPosition: (position, callback) => {
+				clearTimeout(device.setPositionTimeout)
+				log(device.name + ' -> Setting Position to' + position + '%')
+				device.state.TargetPosition = position
+				let command
+				if (position  < 20) {
+					device.positionState = 0
+					command = 'DOWN'
+
+				} else if (position > 80) {
+					device.positionState = 1
+					command = 'UP'
+
+				} else {
+					device.positionState = 2
+					command = 'MY'
+				}
+				device.ShutterService.getCharacteristic(Characteristic.PositionState).updateValue(device.positionState)
+				device.setPositionTimeout = setTimeout(() => {
+					device.positionState = 2
+					device.state.CurrentPosition = position
+					device.ShutterService.getCharacteristic(Characteristic.CurrentPosition).updateValue(position)
+					device.ShutterService.getCharacteristic(Characteristic.TargetPosition).updateValue(position)
+					device.ShutterService.getCharacteristic(Characteristic.PositionState).updateValue(device.positionState)
+				}, 3000)
+
+				setState(command)
 				callback()
 			},
 
