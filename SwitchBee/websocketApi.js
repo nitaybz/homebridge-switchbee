@@ -37,7 +37,7 @@ module.exports = async function (platform) {
 			message = JSON.parse(message)
 			log.easyDebug(`New Message from Websocket: ${JSON.stringify(message)}`)
 			if ('commandId' in message)
-				eventEmitter.emit(`command_${commandId}`, message);
+				eventEmitter.emit(`command_${message.commandId}`, message);
 			else if (message.notificationType === 'CONFIGURATION_CHANGE') {
 				log.easyDebug(`Status Change Notification for device ${message.name}(${message.id}): ${message.newValue}`)
 				if (message.id in platform.connectedDevices) {
@@ -62,9 +62,12 @@ module.exports = async function (platform) {
 					reject(err)
 					return
 				}
+				
+				// if (params)
+				// 	log.easyDebug('params: ' +JSON.stringify(params))
 		
-				// commandId ++ 
-				const thisCommand = Math.floor(Math.random() * 1000000);
+				commandId ++ 
+				const thisCommand = commandId
 				log.easyDebug(`Creating WebSocket ${command} request(${thisCommand}) to SwitchBee Central Unit --->`)
 				const message = JSON.stringify({ commandId: thisCommand, token: requestToken, command, params })
 				log.easyDebug(`WebSocket message to send: ${message}`)
