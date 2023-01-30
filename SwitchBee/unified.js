@@ -151,6 +151,7 @@ module.exports = {
 				return state
 
 			case 'THERMOSTAT':
+			case 'VRF_AC':
 				return {
 					power: state.Active ? 'ON' : 'OFF',
 					mode: state.mode,

@@ -89,6 +89,7 @@ module.exports = (platform) => {
 					break
 
 				case 'THERMOSTAT':
+				case 'VRF_AC':
 					platform.connectedDevices[device.id] = new Thermostat(device, platform)
 					break
 				
