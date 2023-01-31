@@ -63,11 +63,11 @@ class Switch {
 	}
 
 	addSwitchService(code) {
-		this.SwitchService = this.accessory.getService(code.name)
-		if (!this.SwitchService)
-			this.SwitchService = this.accessory.addService(Service.Switch, code.name, code.name)
+		this.SwitchServices[code.name] = this.accessory.getService(code.name)
+		if (!this.SwitchServices[code.name])
+			this.SwitchServices[code.name] = this.accessory.addService(Service.Switch, code.name, code.name)
 
-		this.SwitchService.getCharacteristic(Characteristic.On)
+		this.SwitchServices[code.name].getCharacteristic(Characteristic.On)
 			.on('get', (callback) => {
 				callback(null, false)
 			})
@@ -77,7 +77,7 @@ class Switch {
 
 
 	updateHomeKit() {
-		this.updateValue('SwitchService', 'On', false)
+		// this.updateValue('SwitchService', 'On', false)
 	}
 
 	updateValue (serviceName, characteristicName, newValue) {
