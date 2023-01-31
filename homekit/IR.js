@@ -63,11 +63,11 @@ class Switch {
 	}
 
 	addSwitchService(code) {
-		this.SwitchServices[code.name] = this.accessory.getService(code.name)
-		if (!this.SwitchServices[code.name])
-			this.SwitchServices[code.name] = this.accessory.addService(Service.Switch, code.name, code.name)
+		this.SwitchServices[code.value] = this.accessory.getService(code.name)
+		if (!this.SwitchServices[code.value])
+			this.SwitchServices[code.value] = this.accessory.addService(Service.Switch, code.name, code.name)
 
-		this.SwitchServices[code.name].getCharacteristic(Characteristic.On)
+		this.SwitchServices[code.value].getCharacteristic(Characteristic.On)
 			.on('get', (callback) => {
 				callback(null, false)
 			})
