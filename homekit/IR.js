@@ -23,6 +23,7 @@ class Switch {
 		this.installation = deviceInfo.installation
 		this.transmitterId = device.transmitterId
 		this.codes = device.codes
+		this.SwitchServices = {}
 
 		this.stateManager = require('./StateManager')(this, platform)
 
