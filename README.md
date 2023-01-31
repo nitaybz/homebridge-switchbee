@@ -4,8 +4,6 @@
 
 [![Downloads](https://img.shields.io/npm/dt/homebridge-switchbee.svg?color=critical)](https://www.npmjs.com/package/homebridge-switchbee)
 [![Version](https://img.shields.io/npm/v/homebridge-switchbee)](https://www.npmjs.com/package/homebridge-switchbee)<br>
-<!-- [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins) [![Homebridge Discord](https://img.shields.io/discord/432663330281226270?color=728ED5&logo=discord&label=discord)](https://discord.gg/yguuVAX)<br>
-[![certified-hoobs-plugin](https://badgen.net/badge/HOOBS/Certified/yellow)](https://plugins.hoobs.org?ref=10876) [![hoobs-support](https://badgen.net/badge/HOOBS/Support/yellow)](https://support.hoobs.org?ref=10876) -->
 
 
 [Homebridge](https://github.com/nfarina/homebridge) plugin for SwitchBee - Smart Home
@@ -21,10 +19,16 @@
 check with: `node -v` & `homebridge -V` and update if needed
 
 ----------------------------------------
-## STILL IN TESTING...
+## How to Get Password?
 
-The plugin is still under developement and testing phase.
-please check again in a few days.
+In order to work with this plugin you need to set up a user with the appropriate permissions, and setup a password for this user which will be used to authenticate the user through the SwitchBee plugin.
+
+To do so, connect with an Administrator user using the SwitchBee App. Select “Users” from the menu and click the user which you want to use through this plugin (create a new user if nessesary).
+
+Then click the “Edit” button. Type the desired password and click the “Set Password” button.
+
+Now the system is ready for connecting through the SwitchBee Open API.
+
 
 ----------------------------------------
 # Installation
