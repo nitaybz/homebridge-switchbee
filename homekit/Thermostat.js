@@ -72,8 +72,8 @@ class Thermostat {
 
 
 		const props = []
-		if (this.modes.includes['COOL']) props.push(Characteristic.TargetHeaterCoolerState.COOL)
-		if (this.modes.includes['HEAT']) props.push(Characteristic.TargetHeaterCoolerState.HEAT)
+		if (this.modes.includes('COOL')) props.push(Characteristic.TargetHeaterCoolerState.COOL)
+		if (this.modes.includes('HEAT')) props.push(Characteristic.TargetHeaterCoolerState.HEAT)
 
 		this.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState)
 			.setProps({validValues: props})
@@ -89,7 +89,7 @@ class Thermostat {
 			})
 			.on('get', this.stateManager.get.CurrentTemperature)
 
-		if (this.modes.includes['COOL']) {
+		if (this.modes.includes('COOL')) {
 			this.HeaterCoolerService.getCharacteristic(Characteristic.CoolingThresholdTemperature)
 				.setProps({
 					minValue: 16,
@@ -100,7 +100,7 @@ class Thermostat {
 				.on('set', this.stateManager.set.CoolingThresholdTemperature)
 		}
 
-		if (this.modes.includes['HEAT']) {
+		if (this.modes.includes('HEAT')) {
 			this.HeaterCoolerService.getCharacteristic(Characteristic.HeatingThresholdTemperature)
 				.setProps({
 					minValue: 16,
