@@ -18,7 +18,7 @@ module.exports = async function (platform) {
 		let connection = new WebSocket(WebsocketURL)
 
 		connection.onerror = (error) => {
-			log(`WebSocket error: ${error}`)
+			log(`WebSocket error: ${JSON.stringify(error)}`)
 			log(`Connecting again in 5 seconds`)
 			setTimeout(() => {
 				connection = new WebSocket(WebsocketURL)
@@ -39,10 +39,10 @@ module.exports = async function (platform) {
 			if ('commandId' in message)
 				eventEmitter.emit(`command_${message.commandId}`, message);
 			else if (message.notificationType === 'CONFIGURATION_CHANGE') {
-				log.easyDebug(`Status Change Notification for device ${message.name}(${message.id}): ${message.newValue}`)
+				log.easyDebug(`Status Change Notification for device ${message.name}(${message.id}): ${message.newValue || JSON.stringify(message.data)}`)
 				if (message.id in platform.connectedDevices) {
 					const device = platform.connectedDevices[message.id]
-					device.updateHomeKit(unified.state[device.type](message.newValue, device))
+					device.updateHomeKit(unified.state[device.type](message.newValue || message.data, device))
 				} else {
 					log.easyDebug(`Device is not recognized: ${message.name}(${message.id})`)
 				}
