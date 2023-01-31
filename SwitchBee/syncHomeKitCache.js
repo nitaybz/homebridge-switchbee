@@ -138,7 +138,10 @@ module.exports = (platform) => {
 
 		if (accessoriesToRemove.length) {
 			platform.log.easyDebug('Unregistering Unnecessary Cached Devices:')
-			platform.log.easyDebug(accessoriesToRemove)
+			accessoriesToRemove.forEach(acc => {
+				platform.log.easyDebug(acc.displayName)
+
+			})
 
 			// unregistering accessories
 			platform.api.unregisterPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, accessoriesToRemove)
