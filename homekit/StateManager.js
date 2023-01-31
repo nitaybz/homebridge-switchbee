@@ -235,7 +235,7 @@ module.exports = (device, platform) => {
 				callback()
 			},
 
-			IR: (state, callback, code) => {
+			IR: (code, state, callback) => {
 				if (state) {
 					log(`${device.name} -> Sending IR Command ${code.name}(${code.value})`)
 					setState(code.value)

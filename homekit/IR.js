@@ -59,7 +59,7 @@ class Switch {
 
 		// remove deleted IR switches
 		this.accessory.services.forEach(service => {
-			const thisSwitchService = this.codes.find(code => service.displayName === "" || code.name.replace(/[^A-Z0-9]/ig, " ") === service.displayName)
+			const thisSwitchService = this.codes.find(code => !service.subtype || code.value == service.subtype)
 			if (!thisSwitchService) {
 				this.log(`Removing delete IR Command "${service.displayName}" from : "${this.name}" (id:${this.id})`)
 				this.accessory.removeService(service)
@@ -69,20 +69,18 @@ class Switch {
 	}
 
 	addSwitchService(code) {
-		const codeName = code.name.replace(/[^A-Z0-9]/ig, " ")
-		this.SwitchServices[code.value] = this.accessory.getService(codeName)
+		code.name = code.name.replace("+", "plus").replace(/[^\w\s]/ig, "_")
+		this.SwitchServices[code.value] = this.accessory.getService(code.name)
 		if (!this.SwitchServices[code.value])
-			this.SwitchServices[code.value] = this.accessory.addService(Service.Switch, codeName, code.value)
+			this.SwitchServices[code.value] = this.accessory.addService(Service.Switch, code.name, code.value)
 
-		this.log(`Adding New IR Command "${codeName}" to : "${this.name}" (id:${this.id})`)
+		this.log(`Adding New IR Command "${code.name}" to : "${this.name}" (id:${this.id})`)
 		this.SwitchServices[code.value].getCharacteristic(Characteristic.On)
 			.on('get', (callback) => {
 				callback(null, false)
 			})
 			.on('set', this.stateManager.set.IR.bind(this, code))
 	}
-
-
 
 	updateHomeKit() {
 		// this.updateValue('SwitchService', 'On', false)
