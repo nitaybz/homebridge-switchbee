@@ -26,7 +26,7 @@ module.exports = (platform) => {
 			if (device.id in platform.state) {
 				if (platform.state[device.id] === -1)
 					platform.log.easyDebug(`${device.name} is DISCONNECTED !! please check the status in the SwitchBee app...`)
-				if (!platform.setProcessing)
+				if (!platform.setProcessing && unified.state[device.type])
 					device.updateHomeKit(unified.state[device.type](platform.state[device.id], device))
 			}
 		})
