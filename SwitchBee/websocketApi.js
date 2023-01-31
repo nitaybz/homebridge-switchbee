@@ -42,13 +42,12 @@ module.exports = async function (platform) {
 				log.easyDebug(`Status Change Notification for device ${message.name}(${message.id}): ${message.newValue || JSON.stringify(message.data)}`)
 				if (message.id in platform.connectedDevices) {
 					const device = platform.connectedDevices[message.id]
-					if (device) {
+					if (device && unified.state[device.type]) {
 						if (message.newValue != null && message.newValue !== -1)
 							device.updateHomeKit(unified.state[device.type](message.newValue, device))
 						else if (message.data != null)
 							device.updateHomeKit(unified.state[device.type](message.data, device))
-					} else
-						log.easyDebug(`Can't find device - not recognized: ${message.name}(${message.id})`)
+					}
 				} else {
 					log.easyDebug(`Device is not recognized: ${message.name}(${message.id})`)
 				}
