@@ -64,7 +64,7 @@ class Switch {
 			const thisSwitchService = this.codes.find(code => code.name.replace(/[^A-Z0-9]/ig, " ") === service.displayName)
 			if (!thisSwitchService) {
 				this.log(`Removing delete IR Command "${service.displayName}" from : "${this.name}" (id:${this.id})`)
-				this.accessory.removeService(service)
+				// this.accessory.removeService(service)
 
 			}
 		})
