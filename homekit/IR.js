@@ -59,7 +59,7 @@ class Switch {
 
 		// remove deleted IR switches
 		this.accessory.services.forEach(service => {
-			const thisSwitchService = this.codes.find(code => service.displayName !== "" && code.name.replace(/[^A-Z0-9]/ig, " ") === service.displayName)
+			const thisSwitchService = this.codes.find(code => service.displayName === "" && code.name.replace(/[^A-Z0-9]/ig, " ") === service.displayName)
 			if (!thisSwitchService) {
 				this.log(`Removing delete IR Command "${service.displayName}" from : "${this.name}" (id:${this.id})`)
 				this.accessory.removeService(service)
