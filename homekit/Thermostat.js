@@ -129,24 +129,22 @@ class Thermostat {
 		if (!this.state.Active) {
 			this.updateValue('HeaterCoolerService', 'Active', 0)
 			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.INACTIVE)
-			return
+		} else {
+			// turn on HeaterCoolerService
+			this.updateValue('HeaterCoolerService', 'Active', 1)
+			if (this.state.mode === 'COOL') {
+				this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', Characteristic.TargetHeaterCoolerState.COOL)
+				this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.COOLING)
+			} else if (this.state.mode === 'HEAT') {
+				this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', Characteristic.TargetHeaterCoolerState.HEAT)
+				this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.HEATING)
+			}
 		}
-
-		// turn on HeaterCoolerService
-		this.updateValue('HeaterCoolerService', 'Active', 1)
 
 		// update temperatures for HeaterCoolerService
 		this.updateValue('HeaterCoolerService', 'HeatingThresholdTemperature', this.state.TargetTemperature)
 		this.updateValue('HeaterCoolerService', 'CoolingThresholdTemperature', this.state.TargetTemperature)
 		this.updateValue('HeaterCoolerService', 'RotationSpeed', this.state.fanSpeed)
-
-		if (this.state.mode === 'COOL') {
-			this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', Characteristic.TargetHeaterCoolerState.COOL)
-			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.COOLING)
-		} else if (this.state.mode === 'HEAT') {
-			this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', Characteristic.TargetHeaterCoolerState.HEAT)
-			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.HEATING)
-		}
 
 	}
 
