@@ -138,11 +138,12 @@ class Thermostat {
 		// update temperatures for HeaterCoolerService
 		this.updateValue('HeaterCoolerService', 'HeatingThresholdTemperature', this.state.TargetTemperature)
 		this.updateValue('HeaterCoolerService', 'CoolingThresholdTemperature', this.state.TargetTemperature)
+		this.updateValue('HeaterCoolerService', 'RotationSpeed', this.state.fanSpeed)
 
-		if (this.state.TargetHeaterCoolerState === 'COOL') {
+		if (this.state.mode === 'COOL') {
 			this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', Characteristic.TargetHeaterCoolerState.COOL)
 			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.COOLING)
-		} else {
+		} else if (this.state.mode === 'HEAT') {
 			this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', Characteristic.TargetHeaterCoolerState.HEAT)
 			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', Characteristic.CurrentHeaterCoolerState.HEATING)
 		}

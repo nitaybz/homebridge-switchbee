@@ -1,4 +1,4 @@
-const fanLevels = ['LOW', 'MEDIUM', 'HIGH']
+const fanLevels = ['LOW', 'MED', 'HIGH']
 
 function fanLevelToHK(value, fanLevels) {
 	if (value === 'AUTO')
