@@ -105,11 +105,11 @@ module.exports = {
 
 		Thermostat: (state) => {
 			return {
-				Active: (state.power && state.mode !== 'FAN') ? 1 : 0,
+				Active: (state.power && state.mode !== 'FAN' && state.mode !== 'OFF') ? 1 : 0,
 				mode: state.mode || 'COOL',
-				targetTemperature: state.configuredTemperature || '25',
-				currentTemperature: state.roomTemperature || '25',
-				fanSpeed: fanLevelToHK(state.fan, fanLevels) || 'LOW'
+				TargetTemperature: state.configuredTemperature || 25,
+				CurrentTemperature: state.roomTemperature || 25,
+				fanSpeed: fanLevelToHK(state.fan, fanLevels) || 0
 			}
 		}
 
@@ -156,7 +156,7 @@ module.exports = {
 					power: state.Active ? 'ON' : 'OFF',
 					mode: state.mode,
 					fan:  HKToFanLevel(state.fanSpeed, fanLevels),
-					configuredTemperature: state.targetTemperature
+					configuredTemperature: state.TargetTemperature
 				}
 				
 			case 'IR_DEVICE':

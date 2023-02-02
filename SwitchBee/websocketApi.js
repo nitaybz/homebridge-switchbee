@@ -39,14 +39,13 @@ module.exports = async function (platform) {
 			if ('commandId' in message)
 				eventEmitter.emit(`command_${message.commandId}`, message);
 			else if (message.notificationType === 'CONFIGURATION_CHANGE') {
-				log.easyDebug(`Status Change Notification for device ${message.name}(${message.id}): ${message.newValue || JSON.stringify(message.data)}`)
+				const messageValue = message.newValue != null ? message.newValue : message.data
+				log.easyDebug(`Status Change Notification for device ${message.name}(${message.id}):`)
+				log.easyDebug(messageValue)
 				if (message.id in platform.connectedDevices) {
 					const device = platform.connectedDevices[message.id]
-					if (device && unified.state[device.type]) {
-						if (message.newValue != null && message.newValue !== -1)
-							device.updateHomeKit(unified.state[device.type](message.newValue, device))
-						else if (message.data != null)
-							device.updateHomeKit(unified.state[device.type](message.data, device))
+					if (device && unified.state[device.type] && messageValue !== -1) {
+						device.updateHomeKit(unified.state[device.type](messageValue, device))
 					}
 				} else {
 					log.easyDebug(`Device is not recognized: ${message.name}(${message.id})`)

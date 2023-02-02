@@ -140,8 +140,8 @@ module.exports = (device, platform) => {
 			CurrentHeaterCoolerState: (callback) => {
 				const active = device.state.Active
 				const mode = device.state.mode
-				const targetTemp = device.state.targetTemperature
-				const currentTemp = device.state.currentTemperature
+				const targetTemp = device.state.TargetTemperature
+				const currentTemp = device.state.CurrentTemperature
 		
 				log.easyDebug(device.name, ' - Current HeaterCooler State is:', active ? mode : 'OFF')
 				
@@ -169,7 +169,7 @@ module.exports = (device, platform) => {
 			},
 
 			CurrentTemperature: (callback) => {
-				const currentTemp = device.state.currentTemperature
+				const currentTemp = device.state.CurrentTemperature
 				if (device.usesFahrenheit)
 					log.easyDebug(device.name, ' - Current Temperature is:', toFahrenheit(currentTemp) + 'ºF')
 				else
@@ -179,7 +179,7 @@ module.exports = (device, platform) => {
 			},
 
 			CoolingThresholdTemperature: (callback) => {
-				const targetTemp = device.state.targetTemperature
+				const targetTemp = device.state.TargetTemperature
 
 				if (device.usesFahrenheit)
 					log.easyDebug(device.name, ' - Target Cooling Temperature is:', toFahrenheit(targetTemp) + 'ºF')
@@ -190,7 +190,7 @@ module.exports = (device, platform) => {
 			},
 			
 			HeatingThresholdTemperature: (callback) => {
-				const targetTemp = device.state.targetTemperature
+				const targetTemp = device.state.TargetTemperature
 
 				if (device.usesFahrenheit)
 					log.easyDebug(device.name, ' - Target Heating Temperature is:', toFahrenheit(targetTemp) + 'ºF')
@@ -384,13 +384,13 @@ module.exports = (device, platform) => {
 				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
 				const mode = characteristicToMode(lastMode)
 				if (mode !== 'AUTO') {
-					device.state.targetTemperature = temp
+					device.state.TargetTemperature = temp
 					// log.easyDebug(device.name + ' -> Setting Mode to: COOL')
 					device.state.mode = 'COOL'
 				} else {
-					if (device.state.targetTemperature !== temp) {
+					if (device.state.TargetTemperature !== temp) {
 						setTimeout(() => {
-							device.state.targetTemperature = temp
+							device.state.TargetTemperature = temp
 							// log.easyDebug(device.name + ' -> Setting Mode to: AUTO')
 							device.state.mode = 'AUTO'
 						},100)
@@ -412,13 +412,13 @@ module.exports = (device, platform) => {
 				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
 				const mode = characteristicToMode(lastMode)
 				if (mode !== 'AUTO') {
-					device.state.targetTemperature = temp
+					device.state.TargetTemperature = temp
 					// log.easyDebug(device.name + ' -> Setting Mode to: HEAT')
 					device.state.mode = 'HEAT'
 				} else {
-					if (device.state.targetTemperature !== temp) {
+					if (device.state.TargetTemperature !== temp) {
 						setTimeout(() => {
-							device.state.targetTemperature = temp
+							device.state.TargetTemperature = temp
 							// log(device.name + ' -> Setting Mode to: AUTO')
 							device.state.mode = 'AUTO'
 						},100)
