@@ -87,7 +87,7 @@ class SwitchBeePlatform {
 				this.SwitchBeeApi = await WebsocketApi(this)
 				this.isNewVersion = true
 				this.log.easyDebug(`Forcing polling interval to 10 minutes since it's working with websocket - only to validate states and devices`)
-				this.pollingInterval = 600000
+				this.pollingInterval = 300000
 			}
 
 			// get configurations from storage

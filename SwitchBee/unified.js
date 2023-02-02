@@ -105,7 +105,7 @@ module.exports = {
 
 		Thermostat: (state) => {
 			return {
-				Active: (state.power && state.mode !== 'FAN' && state.mode !== 'OFF') ? 1 : 0,
+				Active: (state.mode !== 'FAN' && state.power !== 'OFF') ? 1 : 0,
 				mode: state.mode || 'COOL',
 				TargetTemperature: state.configuredTemperature || 25,
 				CurrentTemperature: state.roomTemperature || 25,
