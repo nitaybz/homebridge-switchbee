@@ -70,7 +70,7 @@ class Switch {
 
 	addSwitchService(code) {
 		code.name = code.name.replace("+", "plus").replace(/[^\w\s]/ig, "_")
-		this.SwitchServices[code.value] = this.accessory.getService(code.name)
+		this.SwitchServices[code.value] = this.accessory.getService(code.value)
 		if (!this.SwitchServices[code.value])
 			this.SwitchServices[code.value] = this.accessory.addService(Service.Switch, code.name, code.value)
 
