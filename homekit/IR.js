@@ -60,7 +60,7 @@ class Switch {
 		// remove deleted IR switches
 		this.accessory.services.forEach(service => {
 			const codeFound = this.codes.find(code => {
-				const name = code.name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
+				const name = nameCoversion(code.name)
 				return (service.UUID === "0000003E-0000-1000-8000-0026BB765291" || service.subtype === `${name}${code.value}`)
 			})
 			if (!codeFound && this.codes.length) {
@@ -71,7 +71,7 @@ class Switch {
 	}
 
 	addSwitchService(code) {
-		code.name = code.name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
+		code.name = nameCoversion(code.name)
 		this.SwitchServices[code.value] = this.accessory.getService(`${code.name}${code.value}`)
 		if (!this.SwitchServices[code.value])
 			this.SwitchServices[code.value] = this.accessory.addService(Service.Switch, code.name, `${code.name}${code.value}`)
@@ -82,12 +82,9 @@ class Switch {
 				callback(null, false)
 			})
 			.on('set', this.stateManager.set.IR.bind(this, code))
-
-		const nameCharacteristic = this.SwitchServices[code.value].getCharacteristic(Characteristic.ConfiguredName)
-		if (!nameCharacteristic) {
-			this.SwitchServices[code.value].addOptionalCharacteristic(Characteristic.ConfiguredName)
-			this.SwitchServices[code.value].setCharacteristic(Characteristic.ConfiguredName, code.name)
-		}
+		
+		this.SwitchServices[code.value].addOptionalCharacteristic(Characteristic.ConfiguredName)
+		this.SwitchServices[code.value].setCharacteristic(Characteristic.ConfiguredName, code.name)
 		
 	}
 
@@ -101,6 +98,12 @@ class Switch {
 			// this.log(`${this.name} (${this.id}) - Updated '${characteristicName}' for ${serviceName} with NEW VALUE: ${newValue}`)
 		}
 	}
+}
+
+function nameCoversion(name) {
+	if (code.name.length < 4 && code.name.includes('-'))
+		return code.name === 'minus'
+	return code.name = code.name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
 }
 
 
