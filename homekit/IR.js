@@ -59,6 +59,12 @@ class Switch {
 
 		// remove deleted IR switches
 		this.accessory.services.forEach(service => {
+			console.log('service')
+			console.log(service)
+			console.log('service.type')
+			console.log(service.type)
+			console.log('service.JSON')
+			console.log(JSON.stringify(service))
 			const codeFound = this.codes.find(code => {
 				const name = code.name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
 				return (service.displayName == "" || !service.displayName || service.subtype === `${name}${code.value}`)
