@@ -61,7 +61,7 @@ class Switch {
 		this.accessory.services.forEach(service => {
 			const codeFound = this.codes.find(code => {
 				const name = code.name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
-				return service.displayName === "" || service.subtype === `${name}${code.value}`
+				return (service.displayName == "" || !service.displayName || service.subtype === `${name}${code.value}`)
 			})
 			if (!codeFound) {
 				this.log(`Removing delete IR Command "${service.displayName}" from : "${this.name}" (id:${this.id})`)
@@ -83,6 +83,8 @@ class Switch {
 				callback(null, false)
 			})
 			.on('set', this.stateManager.set.IR.bind(this, code))
+
+		this.SwitchServices[code.value].setCharacteristic(Characteristic.ConfiguredName, code.name)
 	}
 
 	updateHomeKit() {
