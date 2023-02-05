@@ -83,7 +83,12 @@ class Switch {
 			})
 			.on('set', this.stateManager.set.IR.bind(this, code))
 
-		this.SwitchServices[code.value].setCharacteristic(Characteristic.ConfiguredName, code.name)
+		const nameCharacteristic = this.SwitchServices[code.value].getCharacteristic(Characteristic.ConfiguredName)
+		if (!nameCharacteristic) {
+			this.SwitchServices[code.value].addOptionalCharacteristic(Characteristic.ConfiguredName)
+			this.SwitchServices[code.value].setCharacteristic(Characteristic.ConfiguredName, code.name)
+		}
+		
 	}
 
 	updateHomeKit() {
