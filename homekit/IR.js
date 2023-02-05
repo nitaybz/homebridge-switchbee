@@ -2,9 +2,9 @@ const unified = require('../SwitchBee/unified')
 let Characteristic, Service
 
 function nameCoversion(name) {
-	if (code.name.length < 4 && code.name.includes('-'))
-		return code.name === 'minus'
-	return code.name = code.name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
+	if (name.length < 4 && name.includes('-'))
+		return name === 'minus'
+	return name = name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
 }
 
 class Switch {
