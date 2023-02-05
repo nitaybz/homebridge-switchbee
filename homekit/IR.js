@@ -4,7 +4,7 @@ let Characteristic, Service
 function nameCoversion(name) {
 	if (name.length < 4 && name.includes('-'))
 		return name === 'minus'
-	return name = name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
+	return name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
 }
 
 class Switch {
