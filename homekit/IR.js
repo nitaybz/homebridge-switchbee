@@ -7,7 +7,7 @@ function nameCoversion(name) {
 	else if (name.length < 4 && name.includes('+'))
 		return 'Plus'
 	else
-		return name.replace("+", "plus").replace(/[^\w\s-]/ig, "_")
+		return name.replace("+", "plus").replace(/[^\w\u0590-\u05fe\s-]/ig, "_")
 }
 
 class Switch {
