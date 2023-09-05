@@ -55,7 +55,7 @@ module.exports = async function (platform) {
 
 		}
 
-		function request(command, params, retry) {
+		function request(command, params) {
 			// eslint-disable-next-line no-async-promise-executor
 			return new Promise(async (resolve, reject) => {
 				let requestToken
@@ -94,11 +94,10 @@ module.exports = async function (platform) {
 						// log.error(error)
 						if (data.status && typeof data.status === 'string' && data.status.includes('TOKEN')) {
 							token = null
-							if (!retry) {
+							setTimeout(() => {
 								log(`retrying command`)
-								resolve(request(command, params, true))
-							} else
-								reject(error)
+								resolve(request(command, params))
+							}, 1000)
 						} else
 							reject(error)
 					}
