@@ -2,7 +2,7 @@ const WebSocket = require('ws')
 const EventEmitter = require('events');
 const unified = require('./unified')
 
-let log, token, username, password
+let log, token, username, password, resolved
 let commandId = 0
 const waitTime = 3000
 
@@ -15,23 +15,37 @@ module.exports = async function (platform) {
 		
 		const eventEmitter = new EventEmitter();
 		const WebsocketURL = `ws://${platform.ip}:7891`
-		let connection = new WebSocket(WebsocketURL)
+		let connection
 
-		connection.onerror = (error) => {
-			log(`WebSocket error: ${JSON.stringify(error)}`)
-			log(`Connecting again in 5 seconds`)
-			setTimeout(() => {
-				connection = new WebSocket(WebsocketURL)
-			}, 5000)
-		}
-		connection.onmessage = (e) => {
-			processMessage(e.data)
-		}
+		function connectWebSocket() {
+			connection = new WebSocket(WebsocketURL);
+		
+			connection.onerror = (error) => {
+				log(`WebSocket error: ${JSON.stringify(error)}`);
+				log(`Connecting again in 5 seconds`);
+				setTimeout(connectWebSocket, 5000);
+			}
 
-		connection.onopen = () => {
-			log(`WebSocket Connected Successfully`)
-			resolve(websocketApi)
+			connection.onclose = () => {
+				log(`WebSocket Closed!`);
+				log(`Connecting again in 5 seconds`);
+				setTimeout(connectWebSocket, 5000);
+			}
+		
+			connection.onmessage = (e) => {
+				processMessage(e.data);
+			}
+		
+			connection.onopen = () => {
+				log(`WebSocket Connected Successfully`);
+				if (!resolved) {
+					resolved = true
+					resolve(websocketApi);
+				}
+			}
 		}
+		
+		connectWebSocket();
 		
 		function processMessage(message) {
 			message = JSON.parse(message)
