@@ -20,14 +20,12 @@ module.exports = async function (platform) {
 		function connectWebSocket() {
 			if (connecting)
 				return
-
 			connecting = true
 			connection = new WebSocket(WebsocketURL);
 		
 			connection.onerror = (error) => {
-				log(`WebSocket error: ${JSON.stringify(error)}`);
-				// log(`Connecting again in 5 seconds`);
-				setTimeout(connectWebSocket, 5000);
+				log(`WebSocket error:`);
+				log.error(error);
 			}
 
 			connection.onclose = () => {

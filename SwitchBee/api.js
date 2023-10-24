@@ -104,7 +104,7 @@ function request(command, params) {
 					resolve(json)
 				} else {
 					const error = `Could NOT complete the request -> ERROR: "${JSON.stringify(data)}"`
-					log(error)
+					// log(error)
 					reject(error)
 					if (data.status && typeof data.status === 'string' && data.status.includes('TOKEN'))
 						token = null
@@ -155,7 +155,7 @@ function getToken() {
 				}
 			})
 			.catch(err => {
-				log(`Could NOT complete the token request -> ERROR: ${err.message}`)
+				// log(`Could NOT complete the token request -> ERROR: ${err.message}`)
 				if (err.response)
 					log.easyDebug(err.response.data)
 				reject(err)

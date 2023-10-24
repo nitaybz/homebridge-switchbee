@@ -79,6 +79,8 @@ class SwitchBeePlatform {
 			} catch(err) {
 				this.log('ERR:', err.stack || err.message || err)
 				version = await this.storage.getItem('switchbee-version')
+				if (version)
+					this.log('Got version from storage')
 			}
 
 			// use Websocket API on newer versions
