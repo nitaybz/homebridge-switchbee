@@ -25,7 +25,7 @@ module.exports = async function (platform) {
 		
 			connection.onerror = (error) => {
 				log(`WebSocket error:`);
-				log.error(error);
+				log.error(error.stack || error.message || error);
 			}
 
 			connection.onclose = () => {
