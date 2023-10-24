@@ -2,7 +2,7 @@ const WebSocket = require('ws')
 const EventEmitter = require('events');
 const unified = require('./unified')
 
-let log, token, username, password, resolved
+let log, token, username, password, resolved, connected, connecting
 let commandId = 0
 const waitTime = 3000
 
@@ -18,16 +18,21 @@ module.exports = async function (platform) {
 		let connection
 
 		function connectWebSocket() {
+			if (connecting)
+				return
+
+			connecting = true
 			connection = new WebSocket(WebsocketURL);
 		
 			connection.onerror = (error) => {
 				log(`WebSocket error: ${JSON.stringify(error)}`);
-				log(`Connecting again in 5 seconds`);
+				// log(`Connecting again in 5 seconds`);
 				setTimeout(connectWebSocket, 5000);
 			}
 
 			connection.onclose = () => {
 				log(`WebSocket Closed!`);
+				connected = false
 				log(`Connecting again in 5 seconds`);
 				setTimeout(connectWebSocket, 5000);
 			}
@@ -38,6 +43,8 @@ module.exports = async function (platform) {
 		
 			connection.onopen = () => {
 				log(`WebSocket Connected Successfully`);
+				connected = true
+				connecting = false
 				if (!resolved) {
 					resolved = true
 					resolve(websocketApi);
@@ -84,10 +91,17 @@ module.exports = async function (platform) {
 				// if (params)
 				// 	log.easyDebug('params: ' +JSON.stringify(params))
 		
+
 				commandId ++ 
 				const thisCommand = commandId
 				log.easyDebug(`Creating WebSocket ${command} request(${thisCommand}) to SwitchBee Central Unit --->`)
 				const message = JSON.stringify({ commandId: thisCommand, token: requestToken, command, params })
+
+				if (!connected) {
+					reject(`Request Can't be sent - Central Unit is disconnected`)
+					return
+				}
+
 				log.easyDebug(`WebSocket message to send: ${message}`)
 				connection.send(message)
 				const waitingTimeout = setTimeout(() => {
@@ -138,6 +152,12 @@ module.exports = async function (platform) {
 				commandId ++ 
 				const thisCommand = commandId
 				log.easyDebug(`Creating WebSocket token request(${thisCommand}) to SwitchBee Central Unit --->`)
+
+				if (!connected) {
+					reject(`Request Can't be sent - Central Unit is disconnected`)
+					return
+				}
+
 				const message = JSON.stringify({ commandId: thisCommand, command: 'LOGIN', params })
 				connection.send(message)
 				const waitingTimeout = setTimeout(() => {
