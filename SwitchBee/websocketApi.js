@@ -33,6 +33,7 @@ module.exports = async function (platform) {
 			connection.onclose = () => {
 				log(`WebSocket Closed!`);
 				connected = false
+				connecting = false
 				log(`Connecting again in 5 seconds`);
 				setTimeout(connectWebSocket, 5000);
 			}
