@@ -1,12 +1,15 @@
 const axios = require('axios')
 const https = require('https')
 const compareVersions = require('compare-versions').compare
-let log, token, username, password
+let log, token, username, password, storage
 
 module.exports = async function (platform) {
 	log = platform.log
 	username = platform.username
 	password = platform.password
+	storage = platform.storage
+
+	token = await storage.getItem('switchbee-token')
 	
 	axios.defaults.baseURL = 'https://' + platform.ip
 	axios.defaults.httpsAgent = new https.Agent({
@@ -145,6 +148,7 @@ function getToken() {
 						key: data.data.token,
 						expirationDate: data.data.expiration
 					}
+					await storage.setItem('switchbee-token', token)
 					log.easyDebug('Token successfully acquired from Central Unit')
 					// log.easyDebug(token)
 					resolve(token.key)

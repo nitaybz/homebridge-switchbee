@@ -2,17 +2,21 @@ const WebSocket = require('ws')
 const EventEmitter = require('events');
 const unified = require('./unified')
 
-let log, token, username, password, resolved, connected, connecting
+let log, token, storage, username, password, resolved, connected, connecting
 let commandId = 0
 const waitTime = 3000
 
 module.exports = async function (platform) {
 
+	log = platform.log
+	username = platform.username
+	password = platform.password
+	storage = platform.storage
+
+	token = await storage.getItem('switchbee-token')
+
 	return new Promise((resolve) => {
-		log = platform.log
-		username = platform.username
-		password = platform.password
-		
+
 		const eventEmitter = new EventEmitter();
 		const WebsocketURL = `ws://${platform.ip}:7891`
 		let connection
@@ -163,13 +167,14 @@ module.exports = async function (platform) {
 					log(`ERROR: No response from websocket after ${waitTime}ms for token request ${thisCommand}`)
 					eventEmitter.off(`command_${thisCommand}`)
 				}, waitTime)
-				eventEmitter.once(`command_${thisCommand}`, (data) => {
+				eventEmitter.once(`command_${thisCommand}`, async (data) => {
 					clearTimeout(waitingTimeout)
 					if (data.status === 'OK') {
 						token = {
 							key: data.data.token,
 							expirationDate: data.data.expiration
 						}
+						await storage.setItem('switchbee-token', token)
 						log.easyDebug('Token successfully acquired from Central Unit')
 						// log.easyDebug(token)
 						resolve(token.key)
