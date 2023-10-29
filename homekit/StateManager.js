@@ -213,6 +213,27 @@ module.exports = (device, platform) => {
 					callback(null, fanSpeed)
 			},
 
+			TriggerDetected: (callback) => {
+				const trigger = device.state.trigger
+
+				log.easyDebug(device.name, ' - Trigger Detected:', trigger)
+				callback(null, trigger)
+			},
+
+			StatusTampered: (callback) => {
+				const tampered = device.state.tampered
+
+				log.easyDebug(device.name, ' - Tempered Status:', tampered)
+				callback(null, tampered)
+			},
+
+			StatusLowBattery: (callback) => {
+				const lowVoltage = device.state.lowVoltage
+
+				log.easyDebug(device.name, ' - Low Battery Status:', lowVoltage)
+				callback(null, lowVoltage)
+			},
+
 		},
 	
 		set: {

@@ -8,6 +8,7 @@ const Scene = require('../homekit/Scene')
 const Thermostat = require('../homekit/Thermostat')
 const IR = require('../homekit/IR')
 const Somfy = require('../homekit/Somfy')
+const Sensor = require('../homekit/Sensor')
 
 module.exports = (platform) => {
 	return () => {
@@ -96,8 +97,13 @@ module.exports = (platform) => {
 				case 'IR_DEVICE':
 					platform.connectedDevices[device.id] = new IR(device, platform)
 					break
-					
-				
+
+				case 'PRESENCE_SENSOR': 
+				case 'FLOOD_SENSOR':
+				case 'MAGNET_SENSOR':
+				case 'SMOKE_SENSOR':
+					platform.connectedDevices[device.id] = new Sensor(device, platform)
+					break
 			}
 		})
 

@@ -111,6 +111,14 @@ module.exports = {
 				CurrentTemperature: state.roomTemperature || 25,
 				fanSpeed: fanLevelToHK(state.fan, fanLevels) || 0
 			}
+		},
+
+		Sensor: (state) => {
+			return {
+				trigger: state.trigger ? 1 : 0,
+				lowVoltage: state.lowVoltage ? 1 : 0,
+				tampered: state.tampered ? 1 : 0
+			}
 		}
 
 	},
