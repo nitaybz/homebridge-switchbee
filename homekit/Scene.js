@@ -67,7 +67,13 @@ class Switch {
 
 
 
-	updateHomeKit() {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			this.updateValue('SwitchService', 'On', error)
+			return
+		}
+
 		this.updateValue('SwitchService', 'On', false)
 	}
 

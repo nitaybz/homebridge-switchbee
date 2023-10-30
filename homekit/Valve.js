@@ -99,7 +99,16 @@ class Valve {
 	}
 
 
-	updateHomeKit(newState) {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			this.updateValue('ValveService', 'Active', error)
+			this.updateValue('ValveService', 'InUse', error)
+			this.updateValue('ValveService', 'SetDuration', error)
+			this.updateValue('ValveService', 'RemainingDuration', error)
+			return
+		}
+
 		this.state = newState
 		
 		this.updateValue('ValveService', 'Active', this.state.Active)

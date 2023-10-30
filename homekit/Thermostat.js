@@ -118,7 +118,16 @@ class Thermostat {
 	}
 
 
-	updateHomeKit(newState) {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			this.updateValue('HeaterCoolerService', 'CurrentTemperature', error)
+			this.updateValue('HeaterCoolerService', 'CurrentHeaterCoolerState', error)
+			this.updateValue('HeaterCoolerService', 'TargetHeaterCoolerState', error)
+			this.updateValue('HeaterCoolerService', 'CoolingThresholdTemperature', error)
+			return
+		}
+
 		this.state = newState
 		
 		

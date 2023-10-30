@@ -89,7 +89,14 @@ class Lock {
 	}
 
 
-	updateHomeKit(newState) {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			this.updateValue('LockService', 'LockCurrentState', error)
+			this.updateValue('LockService', 'LockTargetState', error)
+			return
+		}
+
 		this.state = newState
 
 		this.updateValue('LockService', 'LockCurrentState', this.state.LockState)

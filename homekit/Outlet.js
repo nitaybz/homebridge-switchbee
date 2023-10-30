@@ -90,7 +90,14 @@ class Outlet {
 	}
 
 
-	updateHomeKit(newState) {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			this.updateValue('OutletService', 'On', error)
+			this.updateValue('OutletService', 'OutletInUse', error)
+			return
+		}
+
 		this.state = newState
 		
 		this.updateValue('OutletService', 'On', this.state.On)

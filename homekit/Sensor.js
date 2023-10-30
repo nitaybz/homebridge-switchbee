@@ -100,7 +100,28 @@ class Occupancy {
 
 
 
-	updateHomeKit(newState) {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			switch (this.model) {
+				case 'PRESENCE_SENSOR':
+					this.updateValue('SensorService', 'OccupancyDetected', error)
+					break
+				case 'FLOOD_SENSOR':
+					this.updateValue('SensorService', 'LeakDetected', error)
+					break
+				case 'MAGNET_SENSOR':
+					this.updateValue('SensorService', 'ContactSensorState', error)
+					break
+				case 'SMOKE_SENSOR':
+					this.updateValue('SensorService', 'SmokeDetected', error)
+					break
+			}
+			this.updateValue('SensorService', 'StatusLowBattery', error)
+			this.updateValue('SensorService', 'StatusTampered', error)
+			return
+		}
+
 		this.state = newState
 		
 		switch (this.model) {
@@ -117,7 +138,6 @@ class Occupancy {
 				this.updateValue('SensorService', 'SmokeDetected', this.state.trigger)
 				break
 		}
-
 
 		this.updateValue('SensorService', 'StatusLowBattery', this.state.lowVoltage)
 		this.updateValue('SensorService', 'StatusTampered', this.state.tampered)

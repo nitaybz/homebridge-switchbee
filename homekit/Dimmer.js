@@ -69,7 +69,14 @@ class Dimmer {
 	}
 
 
-	updateHomeKit(newState) {
+	updateHomeKit(newState, offline) {
+		if (offline) {
+			const error = new this.api.hap.HapStatusError(-70402)
+			this.updateValue('DimmerService', 'On', error)
+			this.updateValue('DimmerService', 'Brightness', error)
+			return
+		}
+
 		this.state = newState
 
 		this.updateValue('DimmerService', 'On', this.state.On)
