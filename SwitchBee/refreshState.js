@@ -24,7 +24,7 @@ module.exports = (platform) => {
 		
 		Object.values(platform.connectedDevices).forEach(device => {
 			if (device.id in platform.state) {
-				if (platform.state[device.id] === -1 && platform.state[device.id] === 'OFFLINE') {
+				if (platform.state[device.id] === -1 && platform.state[device.id] === 'OFFLINE' && unified.state[device.type]) {
 					platform.log.easyDebug(`${device.name} is DISCONNECTED !! please check the status in the SwitchBee app...`)
 					device.updateHomeKit(unified.state[device.type](platform.state[device.id], device), true)
 				} else if (!platform.setProcessing && unified.state[device.type])
