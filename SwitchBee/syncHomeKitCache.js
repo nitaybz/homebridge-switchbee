@@ -98,10 +98,7 @@ module.exports = (platform) => {
 					platform.connectedDevices[device.id] = new IR(device, platform)
 					break
 
-				case 'PRESENCE_SENSOR': 
-				case 'FLOOD_SENSOR':
-				case 'MAGNET_SENSOR':
-				case 'SMOKE_SENSOR':
+				case 'SENSOR':
 					platform.connectedDevices[device.id] = new Sensor(device, platform)
 					break
 			}

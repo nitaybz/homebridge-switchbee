@@ -30,7 +30,7 @@ class Occupancy {
 		this.accessory = platform.accessories.find(accessory => accessory.UUID === this.UUID)
 
 		if (!this.accessory) {
-			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.installation} ${this.type} Accessory: "${this.name}" (id:${this.id})`)
+			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.model} ${this.type} Accessory: "${this.name}" (id:${this.id})`)
 			this.accessory = new this.api.platformAccessory(this.name, this.UUID)
 			this.accessory.context.type = this.type
 			this.accessory.context.deviceId = this.id
@@ -55,7 +55,7 @@ class Occupancy {
 	}
 
 	addSensorService() {
-		switch (this.installation) {
+		switch (this.model) {
 			case 'PRESENCE_SENSOR':
 				this.SensorService = this.accessory.getService(Service.OccupancySensor)
 				if (!this.SensorService)
@@ -103,7 +103,7 @@ class Occupancy {
 	updateHomeKit(newState) {
 		this.state = newState
 		
-		switch (this.installation) {
+		switch (this.model) {
 			case 'PRESENCE_SENSOR':
 				this.updateValue('SensorService', 'OccupancyDetected', this.state.trigger)
 				break
