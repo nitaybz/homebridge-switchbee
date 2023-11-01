@@ -26,6 +26,13 @@ class Thermostat {
 		this.setDelay = 600
 
 		this.state = unified.state[this.type](device.state)
+		if (device.state === 'OFFLINE') {
+			setTimeout(() => {
+				// report offline
+				this.log.easyDebug(`${device.name} is DISCONNECTED !! please check the status in the SwitchBee app...`)
+				this.updateHomeKit(null, true)
+			}, 2000)
+		}
 
 		this.stateManager = require('./StateManager')(this, platform)
 

@@ -27,7 +27,7 @@ module.exports = (platform) => {
 
 			device.state = platform.state[device.id]
 
-			if (!device.state) {
+			if (device.state !== 0 && device.state !== false &&!device.state) {
 				platform.log.easyDebug(`Could not retrieve ${device.zone} ${device.name} state! skipping...`)
 				return
 			}

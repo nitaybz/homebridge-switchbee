@@ -54,33 +54,33 @@ module.exports = {
 	state:  {
 		Switch: (state) => {
 			return {
-				On: !!(state && state !== 'OFF' && state !== -1)
+				On: !!(state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE')
 			}
 		},
 
 		Dimmer: (state) => {
 			return {
-				On: !!(state && state !== 'OFF' && state !== 0 && state !== -1),
-				Brightness: (state && state !== 'OFF' && state !== 0 && state !== -1) ? state : 0
+				On: !!(state && state !== 'OFF' && state !== 0 && state !== -1 && state !== 'OFFLINE'),
+				Brightness: (state && state !== 'OFF' && state !== 0 && state !== -1 && state !== 'OFFLINE') ? state : 0
 			}
 		},
 
 		Outlet: (state) => {
 			return {
-				On: !!(state && state !== 'OFF' && state !== -1)
+				On: !!(state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE')
 			}
 		},
 		
 		Lock: (state) => {
 			return {
-				LockState: (state && state !== 'OFF' && state !== -1) ? 0 : 1
+				LockState: (state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE') ? 0 : 1
 			}
 		},
 		
 		Shutter: (state, device) => {
 			return {
-				CurrentPosition: (state && state !== 'OFF' && state !== -1) ? state : 0,
-				TargetPosition: (state && state !== 'OFF' && state !== -1) ? state : 0,
+				CurrentPosition: (state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE') ? state : 0,
+				TargetPosition: (state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE') ? state : 0,
 				PositionState: device.positionState
 			}
 
@@ -88,8 +88,8 @@ module.exports = {
 
 		Somfy: (state, device) => {
 			return {
-				CurrentPosition: device.state.CurrentPosition,
-				TargetPosition: device.state.TargetPosition,
+				CurrentPosition: device.state.CurrentPosition || 0,
+				TargetPosition: device.state.TargetPosition || 0,
 				PositionState: device.positionState
 			}
 
@@ -97,8 +97,8 @@ module.exports = {
 		
 		Valve: (state) => {
 			return {
-				Active: (state && state !== 'OFF' && state !== -1) ? 1 : 0,
-				RemainingDuration: (state && state !== 'OFF'  && state > 0 && state !== -1) ? state * 60 : 0
+				Active: (state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE') ? 1 : 0,
+				RemainingDuration: (state && state !== 'OFF'  && state > 0 && state !== -1 && state !== 'OFFLINE') ? state * 60 : 0
 			}
 
 		},
@@ -109,7 +109,7 @@ module.exports = {
 				mode: state.mode || 'COOL',
 				TargetTemperature: state.configuredTemperature || 25,
 				CurrentTemperature: state.roomTemperature || 25,
-				fanSpeed: fanLevelToHK(state.fan, fanLevels) || 0
+				fanSpeed: state.fan ? (fanLevelToHK(state.fan, fanLevels) || 0) : 0
 			}
 		},
 
