@@ -81,11 +81,11 @@ class Valve {
 			.updateValue(2)
 				
 		this.ValveService.getCharacteristic(Characteristic.Active)
-			.on('get', this.stateManager.get.Active)
-			.on('set', this.stateManager.set.Active)
+			.onSet(this.stateManager.Active)
+			.updateValue(this.state.Active)
 	
 		this.ValveService.getCharacteristic(Characteristic.InUse)
-			.on('get', this.stateManager.get.InUse)
+			.updateValue(this.state.Active)
 	
 		this.ValveService.getCharacteristic(Characteristic.SetDuration)
 			.setProps({
@@ -93,8 +93,8 @@ class Valve {
 				minValue: 60,
 				minStep: 60
 			})
-			.on('get', this.stateManager.get.SetDuration)
-			.on('set', this.stateManager.set.SetDuration)
+			.onSet(this.stateManager.SetDuration)
+			.updateValue(this.duration)
 
 		this.ValveService.getCharacteristic(Characteristic.RemainingDuration)
 			.setProps({
@@ -102,7 +102,7 @@ class Valve {
 				minValue: 0,
 				minStep: 1
 			})
-			.on('get', this.stateManager.get.RemainingDuration)
+			.updateValue(this.state.RemainingDuration)
 	}
 
 

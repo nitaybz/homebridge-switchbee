@@ -69,7 +69,7 @@ class Occupancy {
 					this.SensorService = this.accessory.addService(Service.OccupancySensor, this.name, this.type)
 
 				this.SensorService.getCharacteristic(Characteristic.OccupancyDetected)
-					.on('get', this.stateManager.get.TriggerDetected)
+					.updateValue(this.state.trigger)
 				break
 			case 'FLOOD_SENSOR':
 				this.SensorService = this.accessory.getService(Service.LeakSensor)
@@ -77,7 +77,7 @@ class Occupancy {
 					this.SensorService = this.accessory.addService(Service.LeakSensor, this.name, this.type)
 
 				this.SensorService.getCharacteristic(Characteristic.LeakDetected)
-					.on('get', this.stateManager.get.TriggerDetected)
+					.updateValue(this.state.trigger)
 				break
 			case 'MAGNET_SENSOR':
 				this.SensorService = this.accessory.getService(Service.ContactSensor)
@@ -85,7 +85,7 @@ class Occupancy {
 					this.SensorService = this.accessory.addService(Service.ContactSensor, this.name, this.type)
 
 				this.SensorService.getCharacteristic(Characteristic.ContactSensorState)
-					.on('get', this.stateManager.get.TriggerDetected)
+					.updateValue(this.state.trigger)
 				break
 			case 'SMOKE_SENSOR':
 				this.SensorService = this.accessory.getService(Service.SmokeSensor)
@@ -93,15 +93,15 @@ class Occupancy {
 					this.SensorService = this.accessory.addService(Service.SmokeSensor, this.name, this.type)
 
 				this.SensorService.getCharacteristic(Characteristic.SmokeDetected)
-					.on('get', this.stateManager.get.TriggerDetected)
+					.updateValue(this.state.trigger)
 				break
 		}
 
 		this.SensorService.getCharacteristic(Characteristic.StatusLowBattery)
-			.on('get', this.stateManager.get.StatusLowBattery)
+			.updateValue(this.state.lowVoltage)
 
 		this.SensorService.getCharacteristic(Characteristic.StatusTampered)
-			.on('get', this.stateManager.get.StatusTampered)
+			.updateValue(this.state.tampered)
 
 	}
 

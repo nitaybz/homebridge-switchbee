@@ -72,8 +72,8 @@ class Switch {
 			this.SwitchService = this.accessory.addService(Service.Switch, this.name, this.type)
 
 		this.SwitchService.getCharacteristic(Characteristic.On)
-			.on('get', this.stateManager.get.On)
-			.on('set', this.stateManager.set.On)
+			.onSet(this.stateManager.On)
+			.updateValue(this.state.On)
 
 		if (this.installation === 'TIMED_POWER') {
 
@@ -88,8 +88,8 @@ class Switch {
 					minValue: 60,
 					minStep: 60
 				})
-				.on('get', this.stateManager.get.SetDuration)
-				.on('set', this.stateManager.set.SetDuration)
+				.onSet(this.stateManager.SetDuration)
+				.updateValue(this.duration)
 		}
 	}
 

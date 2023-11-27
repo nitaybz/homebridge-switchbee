@@ -59,10 +59,8 @@ class Switch {
 			this.SwitchService = this.accessory.addService(Service.Switch, this.name, this.type)
 
 		this.SwitchService.getCharacteristic(Characteristic.On)
-			.on('get', (callback) => {
-				callback(null, false)
-			})
-			.on('set', this.stateManager.set.Scene)
+			.onSet(this.stateManager.Scene)
+			.updateValue(false)
 	}
 
 

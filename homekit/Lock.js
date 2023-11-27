@@ -71,11 +71,11 @@ class Lock {
 			this.LockService = this.accessory.addService(Service.LockMechanism, this.name, this.type)
 
 		this.LockService.getCharacteristic(Characteristic.LockCurrentState)
-			.on('get', this.stateManager.get.LockCurrentState)
+			.updateValue(this.state.LockState)
 
 		this.LockService.getCharacteristic(Characteristic.LockTargetState)
-			.on('get', this.stateManager.get.LockTargetState)
-			.on('set', this.stateManager.set.LockTargetState)
+			.onSet(this.stateManager.LockTargetState)
+			.updateValue(this.state.LockState)
 
 		if (this.installation === 'TIMED_POWER') {
 
@@ -90,8 +90,8 @@ class Lock {
 					minValue: 60,
 					minStep: 60
 				})
-				.on('get', this.stateManager.get.SetDuration)
-				.on('set', this.stateManager.set.SetDuration)
+				.onSet(this.stateManager.SetDuration)
+				.updateValue(this.duration)
 		}
 	}
 

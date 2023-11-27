@@ -72,11 +72,11 @@ class Outlet {
 
 
 		this.OutletService.getCharacteristic(Characteristic.On)
-			.on('get', this.stateManager.get.On)
-			.on('set', this.stateManager.set.On)
+			.onSet(this.stateManager.On)
+			.updateValue(this.state.On)
 
 		this.OutletService.getCharacteristic(Characteristic.OutletInUse)
-			.on('get', this.stateManager.get.OutletInUse)
+			.updateValue(this.state.On)
 
 		if (this.installation === 'TIMED_POWER') {
 
@@ -91,8 +91,8 @@ class Outlet {
 					minValue: 60,
 					minStep: 60
 				})
-				.on('get', this.stateManager.get.SetDuration)
-				.on('set', this.stateManager.set.SetDuration)
+				.onSet(this.stateManager.SetDuration)
+				.updateValue(this.duration)
 		}
 	}
 

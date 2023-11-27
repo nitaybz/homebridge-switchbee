@@ -14,471 +14,274 @@ function characteristicToMode(characteristic) {
 		case Characteristic.TargetHeaterCoolerState.AUTO:
 			return 'AUTO'
 	}
-
 }
 
 module.exports = (device, platform) => {
 	Characteristic = platform.api.hap.Characteristic
 	const log = platform.log
 	const SwitchBeeApi = platform.SwitchBeeApi
+	device.pending = []
 
-	const setState = async (state) => {
+	function setState (state) {
 		platform.setProcessing = true
-		const newState = unified.setState(device, state)
-		try {
-			// send state command to Sensibo
-			if (device.type === 'IR')
-				await SwitchBeeApi.setDeviceState(device.transmitterId, newState)
-			else {
-				log(device.name, ' -> Setting New State:', JSON.stringify(newState, null, 2))
-				await SwitchBeeApi.setDeviceState(device.id, newState)
-			}
-			device.updateHomeKit(state)
-			platform.setProcessing = false
-		} catch(err) {
-			log.error(device.name, ' -> ERROR setting new state:')
-			log.error(err)
-			platform.setProcessing = false
-		}
+		if (typeof state === 'undefined')
+			state = device.state
+			
+		device.tempState = unified.setState(device, state)
+
+		return new Promise((res) => {
+			device.pending.push({ resolve: res});
+			clearTimeout(device.setTimeout)
+			device.setTimeout = setTimeout(() => {
+				const sendingState = device.tempState
+				device.tempState = null
+				const currentPending = device.pending
+				device.pending = []
+
+				// always resolve for better experience
+				currentPending.forEach(({ resolve }) => resolve())
+				let id = device.id
+				if (device.type === 'IR')
+					id = device.transmitterId
+
+				log(device.name, ' -> Setting New State:', JSON.stringify(sendingState, null, 2))
+				SwitchBeeApi.setDeviceState(id, sendingState)
+					.catch((err) => {
+						log.error(`ERROR setting status of ${device.name}:`)
+						log.error(err.message || err.stack || err)
+					})
+					.finally(() => {
+						platform.setProcessing = false
+					})
+			}, device.setDelay || 0)
+		})
 	}
 
 	return {
+		On: (state) => {
+			device.state.On = state
+			log(device.name + ' -> Setting On state to', state)
+			return setState(device.state)
+		},
 
-		get: {
+		Scene: (state) => {
+			if (state) {
+				log(device.name + ' -> Setting Scene On')
+				setInterval(() => {
+					device.SwitchService.getCharacteristic(Characteristic.On).updateValue(false)
+				}, 2000)
+				return setState({On: true})
+			}
+		},
 
-			On: (callback) => {
-				const on = device.state.On
-				log.easyDebug(device.name, ' - On State:', on)
-				callback(null, on)
-			},
+		IR: (code, state) => {
+			if (state) {
+				log(`${device.name} -> Sending IR Command ${code.name}(${code.value})`)
+				setInterval(() => {
+					device.SwitchServices[code.value].getCharacteristic(Characteristic.On).updateValue(false)
+				}, 2000)
+				return setState(code.value)
+			}
+		},
 
-			OutletInUse: (callback) => {
-				const on = device.state.On
-				// log.easyDebug(device.name, ' - OutletInUse State:', on)
-				callback(null, on)
-			},
+		Brightness: (brightness) => {
+			if (brightness > 0) {
+				device.state.Brightness = brightness
+			} else
+				device.state.On = false
+			log(device.name + ' -> Setting Brightness to', brightness + '%')
+			return setState(device.state)
+		},
 
-			Brightness: (callback) => {
-				const brightness = device.state.Brightness
-				log.easyDebug(device.name, ' - Brightness State:', brightness)
-				callback(null, brightness)
-			},
+		LockTargetState: (state) => {
+			device.state.LockState = state
+			log(device.name + ' -> Setting Lock State to', state ? 'SECURED' : 'UNSECURED')
+			return setState(device.state)
+		},
 
-			LockCurrentState: (callback) => {
-				const lockState = device.state.LockState
-				log.easyDebug(device.name, ' - Lock Current State  is:', lockState ? 'SECURED': 'UNSECURED')
-				callback(null, lockState)
-			},
+		Active: (state) => {
+			device.state.Active = state
+			log(device.name + ' -> Setting Active state to', state)
+			return setState(device.state)
+		},
 
-			LockTargetState: (callback) => {
-				const lockState = device.state.LockState
-				// log.easyDebug(device.name, ' - Lock Target State  is:', lockState ? 'SECURED': 'UNSECURED')
-				callback(null, lockState)
-			},
+		SetDuration: (seconds) => {
+			const hours = Math.floor(seconds / 60 / 60)
+			const minutes = Math.floor(seconds / 60) % 60
+			const formattedTime = hours + ':' + ('0' + minutes).slice(-2)
+			log(device.name + ' -> Setting Duration to', formattedTime)
+			device.duration = seconds
+			device.accessory.context.duration = seconds	
+			return setState(device.state)
+		},
 
-			Active: (callback) => {
-				const active = device.state.Active
-				log.easyDebug(device.name, ' - Active State:', active)
-				callback(null, active)
-			},
+		TargetPosition: (position) => {
+			const currentPosition = device.ShutterService.getCharacteristic(Characteristic.CurrentPosition).value
+			device.tiltAngle = device.getTilt(position, currentPosition, device.tiltAngle)
+			if (device.fullMovementTimeInSec)
+				device.setPositionState(position, currentPosition)
 
-			InUse: (callback) => {
-				const active = device.state.Active
-				// log.easyDebug(device.name, ' - InUse State:', active)
-				callback(null, active)
-			},
-
-			SetDuration: (callback) => {
-				const duration = device.duration
-				log.easyDebug(device.name, ' - Duration is:', duration)
-				callback(null, duration)
-			},
-
-			RemainingDuration: (callback) => {
-				const duration = device.state.RemainingDuration
-				log.easyDebug(device.name, ' - Remaining Duration is:', duration)
-				callback(null, duration)
-			},
-
-			CurrentPosition: (callback) => {
-				const position = device.state.CurrentPosition
-				log.easyDebug(device.name, ' - Current Position is:', position)
-				callback(null, position)
-			},
-
-			TargetPosition: (callback) => {
-				const position = device.state.TargetPosition
-				log.easyDebug(device.name, ' - Target Position is:', position)
-				callback(null, position)
-			},
-
-			PositionState: (callback) => {
-				const positionState = device.positionState
-				log.easyDebug(device.name, ' - Position State is:', positionState)
-				callback(null, positionState)
-			},
-
-			TargetTiltAngle: (callback) => {
-				const tiltAngle = device.tiltAngle
-				log.easyDebug(device.name, ' - Tilt Angle is:', tiltAngle)
-				callback(null, tiltAngle)
-			},
-
-			ACActive: (callback) => {
-				const active = device.state.Active
-				const mode = device.state.mode
-		
-				if (!active || mode === 'FAN'|| mode === 'DRY') {
-					log.easyDebug(device.name, ' - Active State: false')
-					callback(null, 0)
-				} else {
-					log.easyDebug(device.name, ' - AC Active State: true')
-					callback(null, 1)
-				}
-			},
-
-			CurrentHeaterCoolerState: (callback) => {
-				const active = device.state.Active
-				const mode = device.state.mode
-				const targetTemp = device.state.TargetTemperature
-				const currentTemp = device.state.CurrentTemperature
-		
-				log.easyDebug(device.name, ' - Current HeaterCooler State is:', active ? mode : 'OFF')
-				
-				if (!active || mode === 'FAN' || mode === 'DRY')
-					callback(null, Characteristic.CurrentHeaterCoolerState.INACTIVE)
-				else if (mode === 'COOL')
-					callback(null, Characteristic.CurrentHeaterCoolerState.COOLING)
-				else if (mode === 'HEAT')
-					callback(null, Characteristic.CurrentHeaterCoolerState.HEATING)
-				else if (currentTemp > targetTemp)
-					callback(null, Characteristic.CurrentHeaterCoolerState.COOLING)
-				else
-					callback(null, Characteristic.CurrentHeaterCoolerState.HEATING)
-			},
-		
-			TargetHeaterCoolerState: (callback) => {
-				const active = device.state.Active
-				const mode = device.state.mode
-		
-				log.easyDebug(device.name, ' - Target HeaterCooler State is:', active ? mode : 'OFF')
-				if (!active || mode === 'FAN' || mode === 'DRY')
-					callback(null, null)
-				else
-					callback(null, Characteristic.TargetHeaterCoolerState[mode])
-			},
-
-			CurrentTemperature: (callback) => {
-				const currentTemp = device.state.CurrentTemperature
-				if (device.usesFahrenheit)
-					log.easyDebug(device.name, ' - Current Temperature is:', toFahrenheit(currentTemp) + 'ºF')
-				else
-					log.easyDebug(device.name, ' - Current Temperature is:', currentTemp + 'ºC')
-
-				callback(null, currentTemp)
-			},
-
-			CoolingThresholdTemperature: (callback) => {
-				const targetTemp = device.state.TargetTemperature
-
-				if (device.usesFahrenheit)
-					log.easyDebug(device.name, ' - Target Cooling Temperature is:', toFahrenheit(targetTemp) + 'ºF')
-				else
-					log.easyDebug(device.name, ' - Target Cooling Temperature is:', targetTemp + 'ºC')
-
-				callback(null, targetTemp)
-			},
+			device.state.TargetPosition = position
+			if (device.positionState === 2)
+				log(device.name + ' -> Setting Position to' + position + '%')
+			else
+				log(device.name + ' -> Shutters are busy - Stopping them!')
 			
-			HeatingThresholdTemperature: (callback) => {
-				const targetTemp = device.state.TargetTemperature
+			return setState(device.state)
+		},
 
-				if (device.usesFahrenheit)
-					log.easyDebug(device.name, ' - Target Heating Temperature is:', toFahrenheit(targetTemp) + 'ºF')
-				else
-					log.easyDebug(device.name, ' - Target Heating Temperature is:', targetTemp + 'ºC')
+		SomfyTargetPosition: (position) => {
+			clearTimeout(device.setPositionTimeout)
+			log(device.name + ' -> Setting Position to' + position + '%')
+			device.state.TargetPosition = position
+			let command
+			if (position  < 20) {
+				device.positionState = 0
+				command = 'DOWN'
 
-				callback(null, targetTemp)
-			},
+			} else if (position > 80) {
+				device.positionState = 1
+				command = 'UP'
 
-			ACRotationSpeed: (callback) => {
-				const active = device.state.Active
-				const mode = device.state.mode
-				const fanSpeed = device.state.fanSpeed
+			} else {
+				device.positionState = 2
+				command = 'MY'
+			}
+			device.ShutterService.getCharacteristic(Characteristic.PositionState).updateValue(device.positionState)
+			device.setPositionTimeout = setTimeout(() => {
+				device.positionState = 2
+				device.state.CurrentPosition = position
+				device.ShutterService.getCharacteristic(Characteristic.CurrentPosition).updateValue(position)
+				device.ShutterService.getCharacteristic(Characteristic.TargetPosition).updateValue(position)
+				device.ShutterService.getCharacteristic(Characteristic.PositionState).updateValue(device.positionState)
+			}, 3000)
 
-				log.easyDebug(device.name, ' - AC Rotation Speed is:', fanSpeed + '%')
+			return setState(command)
+		},
 
-				if (!active || mode === 'FAN' || mode === 'DRY')
-					callback(null, null)
-				else
-					callback(null, fanSpeed)
-			},
+		TargetTiltAngle: (angle) => {
+			const tiltAngle = device.tiltAngle
+			log(device.name + ' -> Setting Tilt to ' + angle + '°')
+			if (angle > tiltAngle) {
+				device.tiltAngle = device.tiltAngle !== 0 ? 0 : 90
+				const newPosition = device.state.CurrentPosition + 1
+				device.state.CurrentPosition = newPosition
+				log(device.name + ' -> Setting Position to' + newPosition + '%')
+			} else if (angle < tiltAngle) {
+				device.tiltAngle = device.tiltAngle !== 0 ? 0 : -90
+				const newPosition = device.state.CurrentPosition - 1
+				device.state.CurrentPosition = newPosition
+				log(device.name + ' -> Setting Position to' + newPosition + '%')
+			}
+			
+			return setState(device.state)
+		},
 
-			TriggerDetected: (callback) => {
-				const trigger = device.state.trigger
+		ACActive: (state) => {
+			state = !!state
+			log.easyDebug(device.name + ' -> Setting AC state Active:', state)
 
-				log.easyDebug(device.name, ' - Trigger Detected:', trigger)
-				callback(null, trigger)
-			},
+			if (state) {
+				device.state.Active = 1
+				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
+				const mode = characteristicToMode(lastMode)
+				log.easyDebug(device.name + ' -> Setting Mode to', mode)
+				device.state.mode = mode
+			} else if (device.state.mode === 'COOL' || device.state.mode === 'HEAT' || device.state.mode === 'AUTO')
+				device.state.Active = 0
 
-			StatusTampered: (callback) => {
-				const tampered = device.state.tampered
-
-				log.easyDebug(device.name, ' - Tempered Status:', tampered)
-				callback(null, tampered)
-			},
-
-			StatusLowBattery: (callback) => {
-				const lowVoltage = device.state.lowVoltage
-
-				log.easyDebug(device.name, ' - Low Battery Status:', lowVoltage)
-				callback(null, lowVoltage)
-			},
-
+			return setState(device.state)
 		},
 	
-		set: {
+	
+		TargetHeaterCoolerState: (state) => {
+			const mode = characteristicToMode(state)
+			log.easyDebug(device.name + ' -> Setting Target HeaterCooler State:', mode)
+			device.state.mode = mode
+			device.state.Active = 1
 
-			On: (state, callback) => {
-				device.state.On = state
-				log(device.name + ' -> Setting On state to', state)
-				setState(device.state)
-				callback()
-			},
+			return setState(device.state)
+		},
+	
+		CoolingThresholdTemperature: (temp) => {
+			if (device.usesFahrenheit)
+				log.easyDebug(device.name + ' -> Setting Cooling Threshold Temperature:', toFahrenheit(temp) + 'ºF')
+			else
+				log.easyDebug(device.name + ' -> Setting Cooling Threshold Temperature:', temp + 'ºC')
 
-			Scene: (state, callback) => {
-				if (state) {
-					log(device.name + ' -> Setting Scene On')
-					setState({On: true})
-					setInterval(() => {
-						device.SwitchService.getCharacteristic(Characteristic.On).updateValue(false)
-					}, 2000)
+			device.state.Active = 1
+			const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
+			const mode = characteristicToMode(lastMode)
+			if (mode !== 'AUTO') {
+				device.state.TargetTemperature = temp
+				// log.easyDebug(device.name + ' -> Setting Mode to: COOL')
+				device.state.mode = 'COOL'
+			} else {
+				if (device.state.TargetTemperature !== temp) {
+					setTimeout(() => {
+						device.state.TargetTemperature = temp
+						// log.easyDebug(device.name + ' -> Setting Mode to: AUTO')
+						device.state.mode = 'AUTO'
+					},100)
 				}
-				callback()
-			},
-
-			IR: (code, state, callback) => {
-				if (state) {
-					log(`${device.name} -> Sending IR Command ${code.name}(${code.value})`)
-					setState(code.value)
-					setInterval(() => {
-						device.SwitchServices[code.value].getCharacteristic(Characteristic.On).updateValue(false)
-					}, 2000)
-				}
-				callback()
-			},
-
-			Brightness: (brightness, callback) => {
-				if (brightness > 0) {
-					device.state.Brightness = brightness
-				} else
-					device.state.On = false
-				log(device.name + ' -> Setting Brightness to', brightness + '%')
-				setState(device.state)
-				callback()
-			},
-
-			LockTargetState: (state, callback) => {
-				device.state.LockState = state
-				log(device.name + ' -> Setting Lock State to', state ? 'SECURED' : 'UNSECURED')
-				setState(device.state)
-				callback()
-			},
-
-			Active: (state, callback) => {
-				device.state.Active = state
-				log(device.name + ' -> Setting Active state to', state)
-				setState(device.state)
-				callback()
-			},
-
-			SetDuration: (seconds, callback) => {
-				const hours = Math.floor(seconds / 60 / 60)
-				const minutes = Math.floor(seconds / 60) % 60
-				const formattedTime = hours + ':' + ('0' + minutes).slice(-2)
-				log(device.name + ' -> Setting Duration to', formattedTime)
-				device.duration = seconds
-				device.accessory.context.duration = seconds	
-				setState(device.state)
-				callback()
-			},
-
-			TargetPosition: (position, callback) => {
-				const currentPosition = device.ShutterService.getCharacteristic(Characteristic.CurrentPosition).value
-				device.tiltAngle = device.getTilt(position, currentPosition, device.tiltAngle)
-				if (device.fullMovementTimeInSec)
-					device.setPositionState(position, currentPosition)
-
-				device.state.TargetPosition = position
-				if (device.positionState === 2)
-					log(device.name + ' -> Setting Position to' + position + '%')
-				else
-					log(device.name + ' -> Shutters are busy - Stopping them!')
-				
-				setState(device.state)
-				callback()
-			},
-
-			SomfyTargetPosition: (position, callback) => {
-				clearTimeout(device.setPositionTimeout)
-				log(device.name + ' -> Setting Position to' + position + '%')
-				device.state.TargetPosition = position
-				let command
-				if (position  < 20) {
-					device.positionState = 0
-					command = 'DOWN'
-
-				} else if (position > 80) {
-					device.positionState = 1
-					command = 'UP'
-
-				} else {
-					device.positionState = 2
-					command = 'MY'
-				}
-				device.ShutterService.getCharacteristic(Characteristic.PositionState).updateValue(device.positionState)
-				device.setPositionTimeout = setTimeout(() => {
-					device.positionState = 2
-					device.state.CurrentPosition = position
-					device.ShutterService.getCharacteristic(Characteristic.CurrentPosition).updateValue(position)
-					device.ShutterService.getCharacteristic(Characteristic.TargetPosition).updateValue(position)
-					device.ShutterService.getCharacteristic(Characteristic.PositionState).updateValue(device.positionState)
-				}, 3000)
-
-				setState(command)
-				callback()
-			},
-
-			TargetTiltAngle: (angle, callback) => {
-				const tiltAngle = device.tiltAngle
-				log(device.name + ' -> Setting Tilt to ' + angle + '°')
-				if (angle > tiltAngle) {
-					device.tiltAngle = device.tiltAngle !== 0 ? 0 : 90
-					const newPosition = device.state.CurrentPosition + 1
-					device.state.CurrentPosition = newPosition
-					log(device.name + ' -> Setting Position to' + newPosition + '%')
-				} else if (angle < tiltAngle) {
-					device.tiltAngle = device.tiltAngle !== 0 ? 0 : -90
-					const newPosition = device.state.CurrentPosition - 1
-					device.state.CurrentPosition = newPosition
-					log(device.name + ' -> Setting Position to' + newPosition + '%')
-				}
-				
-				setState(device.state)
-				callback()
-			},
-
-			ACActive: (state, callback) => {
-				state = !!state
-				log.easyDebug(device.name + ' -> Setting AC state Active:', state)
-
-				if (state) {
-					device.state.Active = 1
-					const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
-					const mode = characteristicToMode(lastMode)
-					log.easyDebug(device.name + ' -> Setting Mode to', mode)
-					device.state.mode = mode
-				} else if (device.state.mode === 'COOL' || device.state.mode === 'HEAT' || device.state.mode === 'AUTO')
-					device.state.Active = 0
-
-				setState(device.state)
-				callback()
-			},
-		
-		
-			TargetHeaterCoolerState: (state, callback) => {
-				const mode = characteristicToMode(state)
-				log.easyDebug(device.name + ' -> Setting Target HeaterCooler State:', mode)
-				device.state.mode = mode
-				device.state.Active = 1
-
-				setState(device.state)
-				callback()
-			},
-		
-			CoolingThresholdTemperature: (temp, callback) => {
-				if (device.usesFahrenheit)
-					log.easyDebug(device.name + ' -> Setting Cooling Threshold Temperature:', toFahrenheit(temp) + 'ºF')
-				else
-					log.easyDebug(device.name + ' -> Setting Cooling Threshold Temperature:', temp + 'ºC')
-
-				device.state.Active = 1
-				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
-				const mode = characteristicToMode(lastMode)
-				if (mode !== 'AUTO') {
-					device.state.TargetTemperature = temp
-					// log.easyDebug(device.name + ' -> Setting Mode to: COOL')
-					device.state.mode = 'COOL'
-				} else {
-					if (device.state.TargetTemperature !== temp) {
-						setTimeout(() => {
-							device.state.TargetTemperature = temp
-							// log.easyDebug(device.name + ' -> Setting Mode to: AUTO')
-							device.state.mode = 'AUTO'
-						},100)
-					}
-				}
-
-				setState(device.state)
-				callback()
-			},
-		
-			HeatingThresholdTemperature: (temp, callback) => {
-				if (device.usesFahrenheit)
-					log.easyDebug(device.name + ' -> Setting Heating Threshold Temperature:', toFahrenheit(temp) + 'ºF')
-				else
-					log.easyDebug(device.name + ' -> Setting Heating Threshold Temperature:', temp + 'ºC')
-
-
-				device.state.Active = 1
-				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
-				const mode = characteristicToMode(lastMode)
-				if (mode !== 'AUTO') {
-					device.state.TargetTemperature = temp
-					// log.easyDebug(device.name + ' -> Setting Mode to: HEAT')
-					device.state.mode = 'HEAT'
-				} else {
-					if (device.state.TargetTemperature !== temp) {
-						setTimeout(() => {
-							device.state.TargetTemperature = temp
-							// log(device.name + ' -> Setting Mode to: AUTO')
-							device.state.mode = 'AUTO'
-						},100)
-					}
-				}
-
-				setState(device.state)
-				callback()
-			},
-			ACSwing: (state, callback) => {
-				
-				state = state === Characteristic.SwingMode.SWING_ENABLED ? 'SWING_ENABLED' : 'SWING_DISABLED'
-				log(device.name + ' -> Setting AC Swing:', state)
-				device.state.swing = state
-
-				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
-				const mode = characteristicToMode(lastMode)
-				// log(device.name + ' -> Setting Mode to', mode)
-				device.state.Active = 1
-				device.state.mode = mode
-
-				setState(device.state)
-				callback()
-			},
-		
-			ACRotationSpeed: (speed, callback) => {
-				log(device.name + ' -> Setting AC Rotation Speed:', speed + '%')
-				device.state.fanSpeed = speed
-
-				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
-				const mode = characteristicToMode(lastMode)
-				// log(device.name + ' -> Setting Mode to', mode)
-				device.state.Active = 1
-				device.state.mode = mode
-
-				setState(device.state)
-				callback()
 			}
-		}
 
+			return setState(device.state)
+		},
+	
+		HeatingThresholdTemperature: (temp) => {
+			if (device.usesFahrenheit)
+				log.easyDebug(device.name + ' -> Setting Heating Threshold Temperature:', toFahrenheit(temp) + 'ºF')
+			else
+				log.easyDebug(device.name + ' -> Setting Heating Threshold Temperature:', temp + 'ºC')
+
+
+			device.state.Active = 1
+			const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
+			const mode = characteristicToMode(lastMode)
+			if (mode !== 'AUTO') {
+				device.state.TargetTemperature = temp
+				// log.easyDebug(device.name + ' -> Setting Mode to: HEAT')
+				device.state.mode = 'HEAT'
+			} else {
+				if (device.state.TargetTemperature !== temp) {
+					setTimeout(() => {
+						device.state.TargetTemperature = temp
+						// log(device.name + ' -> Setting Mode to: AUTO')
+						device.state.mode = 'AUTO'
+					},100)
+				}
+			}
+
+			return setState(device.state)
+		},
+		ACSwing: (state) => {
+			
+			state = state === Characteristic.SwingMode.SWING_ENABLED ? 'SWING_ENABLED' : 'SWING_DISABLED'
+			log(device.name + ' -> Setting AC Swing:', state)
+			device.state.swing = state
+
+			const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
+			const mode = characteristicToMode(lastMode)
+			// log(device.name + ' -> Setting Mode to', mode)
+			device.state.Active = 1
+			device.state.mode = mode
+
+			return setState(device.state)
+		},
+	
+		ACRotationSpeed: (speed) => {
+			log(device.name + ' -> Setting AC Rotation Speed:', speed + '%')
+			device.state.fanSpeed = speed
+
+			const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
+			const mode = characteristicToMode(lastMode)
+			// log(device.name + ' -> Setting Mode to', mode)
+			device.state.Active = 1
+			device.state.mode = mode
+
+			return setState(device.state)
+		}
 	}
+
 }

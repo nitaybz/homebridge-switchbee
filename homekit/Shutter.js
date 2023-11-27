@@ -75,31 +75,31 @@ class Shutter {
 			this.ShutterService = this.accessory.addService(Service.WindowCovering, this.name, this.type)
 
 		this.ShutterService.getCharacteristic(Characteristic.CurrentPosition)
-			.on('get', this.stateManager.get.CurrentPosition)
+			.updateValue(this.state.CurrentPosition)
 
 		this.ShutterService.getCharacteristic(Characteristic.TargetPosition)
-			.on('get', this.stateManager.get.TargetPosition)
-			.on('set', this.stateManager.set.TargetPosition)
+			.onSet(this.stateManager.TargetPosition)
+			.updateValue(this.state.TargetPosition)
 
 		this.ShutterService.getCharacteristic(Characteristic.PositionState)
-			.on('get', this.stateManager.get.PositionState)
+			.updateValue(this.positionState)
 
 		switch (this.shutterTilt) {
 			case 'vertical': 
 				this.ShutterService.getCharacteristic(Characteristic.TargetVerticalTiltAngle)
-					.on('get', this.stateManager.get.TargetTiltAngle)
-					.on('set', this.stateManager.set.TargetTiltAngle)
+					.onSet(this.stateManager.TargetTiltAngle)
+					.updateValue(this.tiltAngle)
 
 				this.ShutterService.getCharacteristic(Characteristic.CurrentVerticalTiltAngle)
-					.on('get', this.stateManager.get.TargetTiltAngle)
+					.updateValue(this.tiltAngle)
 				break
 			case 'horizontal':
 				this.ShutterService.getCharacteristic(Characteristic.TargetHorizontalTiltAngle)
-					.on('get', this.stateManager.get.TargetTiltAngle)
-					.on('set', this.stateManager.set.TargetTiltAngle)
+					.onSet(this.stateManager.TargetTiltAngle)
+					.updateValue(this.tiltAngle)
 
 				this.ShutterService.getCharacteristic(Characteristic.CurrentHorizontalTiltAngle)
-					.on('get', this.stateManager.get.TargetTiltAngle)
+					.updateValue(this.tiltAngle)
 				break
 		}
 	}

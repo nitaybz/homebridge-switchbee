@@ -1,6 +1,5 @@
 const unified = require('../SwitchBee/unified')
 let Characteristic, Service
-
 class Thermostat {
 	constructor(device, platform) {
 
@@ -66,26 +65,50 @@ class Thermostat {
 	}
 
 	addHeaterCoolerService() {
+
+		const active = this.state.Active
+		const mode = this.state.mode
+		const targetTemp = this.state.TargetTemperature
+		const currentTemp = this.state.CurrentTemperature
+
+
+
 		this.HeaterCoolerService = this.accessory.getService(Service.HeaterCooler)
 		if (!this.HeaterCoolerService)
 			this.HeaterCoolerService = this.accessory.addService(Service.HeaterCooler, this.name, this.type)
 
 		this.HeaterCoolerService.getCharacteristic(Characteristic.Active)
-			.on('get', this.stateManager.get.ACActive)
-			.on('set', this.stateManager.set.ACActive)
+			.onSet(this.stateManager.ACActive)
+			.updateValue(!active || mode === 'FAN'|| mode === 'DRY' ? 0 : 1)
+
+		let currentState
+
+		if (!active || mode === 'FAN' || mode === 'DRY')
+			currentState = Characteristic.CurrentHeaterCoolerState.INACTIVE
+		else if (mode === 'COOL')
+			currentState = Characteristic.CurrentHeaterCoolerState.COOLING
+		else if (mode === 'HEAT')
+			currentState = Characteristic.CurrentHeaterCoolerState.HEATING
+		else if (currentTemp > targetTemp)
+			currentState = Characteristic.CurrentHeaterCoolerState.COOLING
+		else
+			currentState = Characteristic.CurrentHeaterCoolerState.HEATING
 
 		this.HeaterCoolerService.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
-			.on('get', this.stateManager.get.CurrentHeaterCoolerState)
-
+			.updateValue(currentState)
 
 		const props = []
 		if (this.modes.includes('COOL')) props.push(Characteristic.TargetHeaterCoolerState.COOL)
 		if (this.modes.includes('HEAT')) props.push(Characteristic.TargetHeaterCoolerState.HEAT)
 
+		let targetState = this.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
+		if (['COOL', 'HEAT','AUTO'].includes(mode))
+			targetState = Characteristic.TargetHeaterCoolerState[mode]
+
 		this.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState)
 			.setProps({validValues: props})
-			.on('get', this.stateManager.get.TargetHeaterCoolerState)
-			.on('set', this.stateManager.set.TargetHeaterCoolerState)
+			.onSet(this.stateManager.TargetHeaterCoolerState)
+			.updateValue(targetState)
 
 
 		this.HeaterCoolerService.getCharacteristic(Characteristic.CurrentTemperature)
@@ -94,7 +117,7 @@ class Thermostat {
 				maxValue: 100,
 				minStep: 0.1
 			})
-			.on('get', this.stateManager.get.CurrentTemperature)
+			.updateValue(currentTemp)
 
 		if (this.modes.includes('COOL')) {
 			this.HeaterCoolerService.getCharacteristic(Characteristic.CoolingThresholdTemperature)
@@ -103,8 +126,8 @@ class Thermostat {
 					maxValue: 31,
 					minStep: this.usesFahrenheit ? 0.1 : 1
 				})
-				.on('get', this.stateManager.get.CoolingThresholdTemperature)
-				.on('set', this.stateManager.set.CoolingThresholdTemperature)
+				.onSet(this.stateManager.CoolingThresholdTemperature)
+				.updateValue(targetTemp)
 		}
 
 		if (this.modes.includes('HEAT')) {
@@ -114,13 +137,13 @@ class Thermostat {
 					maxValue: 31,
 					minStep: this.usesFahrenheit ? 0.1 : 1
 				})
-				.on('get', this.stateManager.get.HeatingThresholdTemperature)
-				.on('set', this.stateManager.set.HeatingThresholdTemperature)
+				.onSet(this.stateManager.HeatingThresholdTemperature)
+				.updateValue(targetTemp)
 		}
 
 		this.HeaterCoolerService.getCharacteristic(Characteristic.RotationSpeed)
-			.on('get', this.stateManager.get.ACRotationSpeed)
-			.on('set', this.stateManager.set.ACRotationSpeed)
+			.onSet(this.stateManager.ACRotationSpeed)
+			.updateValue(this.state.fanSpeed)
 
 	}
 

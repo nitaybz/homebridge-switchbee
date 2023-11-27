@@ -67,12 +67,12 @@ class Dimmer {
 			this.DimmerService = this.accessory.addService(Service.Lightbulb, this.name, this.type)
 
 		this.DimmerService.getCharacteristic(Characteristic.On)
-			.on('get', this.stateManager.get.On)
-			.on('set', this.stateManager.set.On)
+			.onSet(this.stateManager.On)
+			.updateValue(this.state.On)
 
 		this.DimmerService.getCharacteristic(Characteristic.Brightness)
-			.on('get', this.stateManager.get.Brightness)
-			.on('set', this.stateManager.set.Brightness)
+			.onSet(this.stateManager.Brightness)
+			.updateValue(this.state.Brightness)
 	}
 
 

@@ -89,10 +89,8 @@ class Switch {
 
 		this.log(`Adding New IR Command "${code.name}" to : "${this.name}" (id:${this.id})`)
 		this.SwitchServices[code.value].getCharacteristic(Characteristic.On)
-			.on('get', (callback) => {
-				callback(null, false)
-			})
-			.on('set', this.stateManager.set.IR.bind(this, code))
+			.onSet(this.stateManager.IR.bind(this, code))
+			.updateValue(false)
 		
 		this.SwitchServices[code.value].addOptionalCharacteristic(Characteristic.ConfiguredName)
 		this.SwitchServices[code.value].setCharacteristic(Characteristic.ConfiguredName, code.name)

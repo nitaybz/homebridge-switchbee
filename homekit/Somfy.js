@@ -68,7 +68,7 @@ class Shutter {
 			this.ShutterService = this.accessory.addService(Service.WindowCovering, this.name, this.type)
 
 		this.ShutterService.getCharacteristic(Characteristic.CurrentPosition)
-			.on('get', this.stateManager.get.CurrentPosition)
+			.updateValue(this.state.CurrentPosition)
 
 		this.ShutterService.getCharacteristic(Characteristic.TargetPosition)
 			.setProps({
@@ -76,11 +76,11 @@ class Shutter {
 				maxValue: 100,
 				minStep: 50,
 			})
-			.on('get', this.stateManager.get.TargetPosition)
-			.on('set', this.stateManager.set.SomfyTargetPosition)
+			.onSet(this.stateManager.SomfyTargetPosition)
+			.updateValue(this.state.TargetPosition)
 
 		this.ShutterService.getCharacteristic(Characteristic.PositionState)
-			.on('get', this.stateManager.get.PositionState)
+			.updateValue(this.positionState)
 
 	}
 
