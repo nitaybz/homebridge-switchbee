@@ -1,7 +1,7 @@
 {
   "name": "homebridge-switchbee",
   "description": "Homebridge plugin for SwitchBee - Smart Home",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/nitaybz/homebridge-switchbee.git"
