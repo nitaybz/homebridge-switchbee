@@ -88,7 +88,7 @@ class SwitchBeePlatform {
 				this.log.easyDebug(`New version found ${version.version} - Using Websocket API`)
 				this.SwitchBeeApi = await WebsocketApi(this)
 				this.isNewVersion = true
-				this.log.easyDebug(`Forcing polling interval to 10 minutes since it's working with websocket - only to validate states and devices`)
+				this.log.easyDebug(`Forcing polling interval to 5 minutes since it's working with websocket - only to validate states and devices`)
 				this.pollingInterval = 300000
 			}
 

@@ -178,19 +178,22 @@ module.exports = (device, platform) => {
 		},
 
 		ACActive: (state) => {
-			state = !!state
-			log.easyDebug(device.name + ' -> Setting AC state Active:', state)
-
-			if (state) {
-				device.state.Active = 1
-				const lastMode = device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value
-				const mode = characteristicToMode(lastMode)
-				log.easyDebug(device.name + ' -> Setting Mode to', mode)
-				device.state.mode = mode
-			} else if (device.state.mode === 'COOL' || device.state.mode === 'HEAT' || device.state.mode === 'AUTO')
-				device.state.Active = 0
-
-			return setState(device.state)
+			setTimeout(() => {
+				state = !!state
+				log.easyDebug(device.name + ' -> Setting AC state Active:', state)
+	
+				if (state) {
+					device.state.Active = 1
+					let mode = device.state.mode
+					if (mode === 'FAN' && mode === 'DRY')
+						mode = characteristicToMode(device.HeaterCoolerService.getCharacteristic(Characteristic.TargetHeaterCoolerState).value)
+					log.easyDebug(device.name + ' -> Setting Mode to', mode)
+					device.state.mode = mode
+				} else if (device.state.mode === 'COOL' || device.state.mode === 'HEAT' || device.state.mode === 'AUTO')
+					device.state.Active = 0
+	
+				return setState(device.state)
+			}, 50)
 		},
 	
 	
