@@ -86,15 +86,6 @@ module.exports = {
 
 		},
 
-		Somfy: (state, device) => {
-			return {
-				CurrentPosition: device.state.CurrentPosition || 0,
-				TargetPosition: device.state.TargetPosition || 0,
-				PositionState: device.positionState
-			}
-
-		},
-		
 		Valve: (state) => {
 			return {
 				Active: (state && state !== 'OFF' && state !== -1 && state !== 'OFFLINE') ? 1 : 0,

@@ -84,19 +84,6 @@ class Shutter {
 
 	}
 
-
-	updateHomeKit(newState, offline) {
-		if (offline) {
-			const error = new this.api.hap.HapStatusError(-70402)
-			this.updateValue('ShutterService', 'CurrentPosition', error)
-			this.updateValue('ShutterService', 'TargetPosition', error)
-			this.updateValue('ShutterService', 'PositionState', error)
-			return
-		}
-
-		this.accessory.context.position = this.state.TargetPosition
-	}
-
 	updateValue (serviceName, characteristicName, newValue) {
 		if (this[serviceName].getCharacteristic(Characteristic[characteristicName]).value !== newValue) {
 			this[serviceName].getCharacteristic(Characteristic[characteristicName]).updateValue(newValue)
